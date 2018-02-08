@@ -17,10 +17,11 @@ class Login extends Component {
 
   handleJWT = async jwt => {
     const { dispatch, history } = this.props;
+    const decoded = jwtDecode(jwt);
     await dispatch(
       setLoggedInUser({
         token: jwt,
-        profile: jwtDecode(jwt).context.user
+        profile: decoded.context.user
       })
     );
     history.push("/");
@@ -64,14 +65,15 @@ class Login extends Component {
   }
 
   render() {
+    let { shouldNotRedirect } = this.props;
+    let { securityError } = this.state;
     const renderSocialLoginButtons =
-      this.props.shouldNotRedirect ||
-      allRedirectUris.includes(window.location.origin);
+      shouldNotRedirect || allRedirectUris.includes(window.location.origin);
 
     return (
       <div className="Login">
         <h1>Login Here!</h1>
-        {this.state.securityError ? (
+        {securityError ? (
           <div>Connection to ego failed</div>
         ) : renderSocialLoginButtons ? (
           [<div key="google" id="googleSignin" />]

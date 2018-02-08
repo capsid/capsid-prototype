@@ -13,7 +13,6 @@ export default ({ onLogin, ...props }) => {
         const search = queryString.stringify({
           redirect_uri: urlJoin(window.location.origin, "redirected")
         });
-        debugger;
         popBack({
           id: "external-authorize",
           url: urlJoin(defaultRedirectUri, "auth-redirect", `?${search}`),
