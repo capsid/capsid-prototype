@@ -1,13 +1,13 @@
 import React from "react";
 import { connect } from "react-redux";
 
-const Home = ({ user }) => (
+const Home = ({ profile }) => (
   <div className="App">
     <h1>Welcome to Capsid</h1>
-    <pre>{JSON.stringify(user, null, 2)}</pre>
+    <div>You are: {profile.firstName} {profile.lastName} {profile.email}</div>
   </div>
 );
 
 export default connect(state => ({
-  user: state.user
+  profile: state.user.profile,
 }))(Home);

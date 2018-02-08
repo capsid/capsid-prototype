@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "jwt-decode": "^2.2.0",
+    "popback": "^0.0.3",
+    "query-string": "^5.1.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.6",
@@ -10,7 +13,9 @@
     "react-scripts": "1.1.0",
     "recompose": "^0.26.0",
     "redux": "^3.7.2",
-    "updeep": "^1.0.0"
+    "updeep": "^1.0.0",
+    "url-join": "^4.0.0",
+    "with-query": "^1.0.2"
   },
   "scripts": {
     "start": "react-scripts start",

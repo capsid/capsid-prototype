@@ -6,20 +6,20 @@ import { user as actions } from "../actions";
 // User Action Creators
 // ============================================================================
 
-export const setLoggedInUser = ({ profile, token }) => ({
-  type: actions.SET_LOGGED_IN_USER,
-  payload: { profile, token }
-});
+export const setLoggedInUser = ({ profile, token }) => {
+  return {
+    type: actions.SET_LOGGED_IN_USER,
+    payload: { profile, token }
+  };
+};
 
 // ============================================================================
 // User Reducer
 // ============================================================================
 
 const defaultState = {
-  user: {
-    token: null,
-    profile: null
-  }
+  token: null,
+  profile: null
 };
 
 export default function(state = defaultState, action) {
