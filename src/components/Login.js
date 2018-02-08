@@ -4,7 +4,7 @@ import { withRouter } from "react-router";
 import jwtDecode from "jwt-decode";
 
 import { allRedirectUris, googleAppId } from "../common/injectGlobals";
-import { setLoggedInUser } from "../reducers/reduceUser";
+import { login } from "../reducers/reduceUser";
 import { googleLogin } from "../services/login";
 import RedirectLogin from "./RedirectLogin";
 
@@ -19,7 +19,7 @@ class Login extends Component {
     const { dispatch, history } = this.props;
     const decoded = jwtDecode(jwt);
     await dispatch(
-      setLoggedInUser({
+      login({
         token: jwt,
         profile: decoded.context.user
       })

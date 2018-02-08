@@ -6,12 +6,12 @@ import { user as actions } from "../actions";
 // User Action Creators
 // ============================================================================
 
-export const setLoggedInUser = ({ profile, token }) => {
-  return {
-    type: actions.SET_LOGGED_IN_USER,
-    payload: { profile, token }
-  };
-};
+export const login = ({ profile, token }) => ({
+  type: actions.LOGIN,
+  payload: { profile, token }
+});
+
+export const logout = () => ({ type: actions.LOGOUT });
 
 // ============================================================================
 // User Reducer
@@ -25,9 +25,12 @@ const defaultState = {
 export default function(state = defaultState, action) {
   let update;
   switch (action.type) {
-    // ------------------------------------------------------------------------
-    case actions.SET_LOGGED_IN_USER:
+    case actions.LOGIN:
       update = action.payload;
+      break;
+
+    case actions.LOGOUT:
+      update = { token: defaultState.token, profile: defaultState.profile };
       break;
 
     default:
