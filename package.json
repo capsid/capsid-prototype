@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@arranger/components": "^0.0.3",
+    "@arranger/components": "^0.0.4",
+    "@arranger/middleware": "^0.0.4",
+    "elasticsearch": "^14.1.0",
     "jwt-decode": "^2.2.0",
     "popback": "^0.0.3",
     "query-string": "^5.1.0",
@@ -23,10 +25,17 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "seed": "node seed.index.js"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0-beta.39",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.39",
+    "@babel/plugin-proposal-optional-chaining": "^7.0.0-beta.39",
+    "@babel/preset-env": "^7.0.0-beta.39",
+    "@babel/register": "^7.0.0-beta.39",
     "babel-polyfill": "^6.26.0",
+    "mocker-data-generator": "^2.5.2",
     "prettier": "^1.10.2"
   }
 }
