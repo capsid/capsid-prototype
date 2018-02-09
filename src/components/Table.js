@@ -3,7 +3,7 @@ import { compose, withProps, withPropsOnChange, withState } from "recompose";
 import ReactTable from "react-table";
 import elasticsearch from "elasticsearch";
 
-import { nested, aggs } from "../dummyData/aggs";
+import { nested, agggs } from "../dummyData/aggs";
 
 import { CurrentSQON } from "@arranger/components/dist/Arranger";
 import { TermAgg } from "@arranger/components/dist/Aggs";
@@ -15,29 +15,26 @@ import {
 } from "@arranger/components/dist/SQONView/utils";
 import "@arranger/components/public/themeStyles/beagle/beagle.css";
 
-// import FilterProcessor from "@arranger/middleware/dist/filters";
-// import AggregationProcessor from "@arranger/middleware/dist/aggregations";
-
-import AggregationProcessor from "../aggregations";
-import FilterProcessor from "../filter";
+import FilterProcessor from "@arranger/middleware/dist/filters";
+import AggregationProcessor from "@arranger/middleware/dist/aggregations";
 
 import "react-table/react-table.css";
 
-const fetchData = async ({ sqon, page, pageSize }) => {
-  const query = new FilterProcessor().buildFilters("", nested, sqon);
-  console.log("query", query);
-  console.log("else", sqon, page, pageSize);
-};
+const replaceAll = (x, from, to) => x.split(from).join(to);
 
 class Table extends React.Component {
-  state = {
-    page: 1,
-    pageSize: 20,
-    data: [],
-    sqon: { op: "and", content: [] },
-    aggs: [],
-    es: new elasticsearch.Client({ host: "localhost:9200", log: "trace" })
-  };
+  constructor(props) {
+    super(props);
+    this.defaultSqon = { op: "and", content: [] };
+    this.state = {
+      page: 1,
+      pageSize: 20,
+      data: [],
+      sqon: this.defaultSqon,
+      aggs: [],
+      es: new elasticsearch.Client({ host: "localhost:9200", log: "error" })
+    };
+  }
 
   componentDidMount() {
     this.getAggData();
@@ -55,40 +52,43 @@ class Table extends React.Component {
 
   getAggData = async () => {
     let { es } = this.state;
-    let nested_fields = ["files"];
-    let aggregationProcessor = new AggregationProcessor();
-    let { query, aggs } = aggregationProcessor.buildAggregations({
-      type: { name: "data" },
-      fields: ["gender", "files__size"],
-      graphql_fields: {
-        gender: {
-          buckets: {
-            doc_count: {},
-            key: {}
-          }
-        },
-        files__size: {
-          stats: {
-            max: {},
-            min: {},
-            count: {},
-            avg: {},
-            sum: {}
-          },
-          histogram: {
-            buckets: {
-              doc_count: {},
-              key: {},
-              key_as_string: {}
+
+    const type = { name: "data" };
+    const aggsUnderscore = agggs.map(x => ({
+      ...x,
+      field: replaceAll(x.field, ".", "__")
+    }));
+    const fields = aggsUnderscore.map(x => x.field);
+    const graphql_fields = aggsUnderscore.reduce((obj, x) => {
+      let content =
+        x.type === "Aggregations"
+          ? {
+              buckets: { doc_count: {}, key: {} }
             }
-          }
-        }
-      },
+          : {
+              stats: { max: {}, min: {}, count: {}, avg: {}, sum: {} },
+              histogram: {
+                buckets: { doc_count: {}, key: {}, key_as_string: {} }
+              }
+            };
+      return {
+        ...obj,
+        [x.field]: content
+      };
+    }, {});
+    const nested_fields = nested;
+
+    const aggregationProcessor = new AggregationProcessor();
+    const { query, aggs } = aggregationProcessor.buildAggregations({
+      type,
+      fields,
+      graphql_fields,
       nested_fields,
       args: {}
     });
 
-    let body = query && Object.keys(query).length ? { query, aggs } : { aggs };
+    const body =
+      query && Object.keys(query).length ? { query, aggs } : { aggs };
 
     let { aggregations } = await es.search({
       index: "data",
@@ -98,30 +98,36 @@ class Table extends React.Component {
       body
     });
 
-    console.log("aggregations", aggregations);
-
     let { pruned } = await aggregationProcessor.pruneAggregations({
       nested_fields,
       aggs: aggregations
     });
 
-    console.log("pruned", pruned);
+    this.setState({
+      aggs: agggs.map(x => ({ ...x, ...pruned[x.field] }))
+    });
   };
 
   fetchData = async () => {
-    let { aggs, sqon, page, pageSize } = this.state;
-    const data = await fetchData({ aggs, sqon, page, pageSize });
-    console.log(data);
+    let { es, sqon, page, pageSize } = this.state;
+    const query = new FilterProcessor().buildFilters("", nested, sqon);
+    const response = await es.search({
+      index: "data",
+      type: "data",
+      from: (page - 1) * pageSize,
+      size: pageSize,
+      body: { query }
+    });
+    const data = response.hits.hits.map(x => x._source);
     this.setState({ data });
   };
 
   setSqon = sqon => {
-    this.setState({ sqon });
-    this.fetchData();
+    this.setState({ sqon: sqon || this.defaultSqon }, () => this.fetchData());
   };
 
   render() {
-    let { aggs, sqon } = this.state;
+    let { aggs, sqon, data } = this.state;
     return (
       <div className="Table">
         <div style={{ marginTop: 40 }}>
@@ -190,14 +196,17 @@ class Table extends React.Component {
             </div>
             <div style={{ flexGrow: 1 }}>
               <ReactTable
-                data={[
-                  { name: "Jordan", age: "26" },
-                  { name: "Willie", age: 4 },
-                  { name: "George", age: 29 }
-                ]}
+                loading={!data.length}
+                data={data}
                 columns={[
-                  { Header: "Name", accessor: "name" },
-                  { Header: "Age", accessor: "age" }
+                  { Header: "First", accessor: "first" },
+                  { Header: "Last", accessor: "last" },
+                  { Header: "Gender", accessor: "gender" },
+                  {
+                    Header: "File Count",
+                    id: "file_count",
+                    accessor: x => x.files.length
+                  }
                 ]}
                 defaultPageSize={20}
                 className="-striped -highlight"

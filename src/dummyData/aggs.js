@@ -1,6 +1,6 @@
 export const nested = ["files"];
 
-export const aggs = [
+export const agggs = [
   {
     field: "gender",
     displayName: "Gender",
