@@ -17,16 +17,17 @@
     "react-table": "^6.7.6",
     "recompose": "^0.26.0",
     "redux": "^3.7.2",
+    "stringify-object": "^3.2.2",
     "updeep": "^1.0.0",
     "url-join": "^4.0.0",
+    "urql": "^0.1.0",
     "with-query": "^1.0.2"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "seed": "node seed.index.js"
+    "eject": "react-scripts eject"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.39",

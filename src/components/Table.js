@@ -1,9 +1,7 @@
 import React from "react";
-import { compose, withProps, withPropsOnChange, withState } from "recompose";
 import ReactTable from "react-table";
-import elasticsearch from "elasticsearch";
-
-import { nested, agggs } from "../dummyData/aggs";
+import { Connect, query } from "urql";
+import stringifyObject from "stringify-object";
 
 import { CurrentSQON } from "@arranger/components/dist/Arranger";
 import { TermAgg } from "@arranger/components/dist/Aggs";
@@ -16,11 +14,23 @@ import {
 import "@arranger/components/public/themeStyles/beagle/beagle.css";
 
 import FilterProcessor from "@arranger/middleware/dist/filters";
-import AggregationProcessor from "@arranger/middleware/dist/aggregations";
 
+import { removeProp } from "../utils";
+import withAggs from "./withAggs";
 import "react-table/react-table.css";
 
-const replaceAll = (x, from, to) => x.split(from).join(to);
+const aggregations = [
+  {
+    field: "label",
+    displayName: "Label",
+    type: "term"
+  },
+  {
+    field: "version",
+    displayName: "Version",
+    type: "numeric"
+  }
+];
 
 class Table extends React.Component {
   constructor(props) {
@@ -29,194 +39,163 @@ class Table extends React.Component {
     this.state = {
       page: 1,
       pageSize: 20,
-      data: [],
-      sqon: this.defaultSqon,
-      aggs: [],
-      es: new elasticsearch.Client({ host: "localhost:9200", log: "error" })
+      sqon: this.defaultSqon
     };
   }
 
-  componentDidMount() {
-    this.getAggData();
-    this.fetchData();
-  }
-
-  componentWillReceiveProps(nextProps) {
-    let { sqon: lastSqon } = this.state;
-    let { sqon } = nextProps;
-    if (sqon !== lastSqon) {
-      this.setState({ sqon });
-      this.fetchData();
-    }
-  }
-
-  getAggData = async () => {
-    let { es } = this.state;
-
-    const type = { name: "data" };
-    const aggsUnderscore = agggs.map(x => ({
-      ...x,
-      field: replaceAll(x.field, ".", "__")
-    }));
-    const fields = aggsUnderscore.map(x => x.field);
-    const graphql_fields = aggsUnderscore.reduce((obj, x) => {
-      let content =
-        x.type === "Aggregations"
-          ? {
-              buckets: { doc_count: {}, key: {} }
-            }
-          : {
-              stats: { max: {}, min: {}, count: {}, avg: {}, sum: {} },
-              histogram: {
-                buckets: { doc_count: {}, key: {}, key_as_string: {} }
-              }
-            };
-      return {
-        ...obj,
-        [x.field]: content
-      };
-    }, {});
-    const nested_fields = nested;
-
-    const aggregationProcessor = new AggregationProcessor();
-    const { query, aggs } = aggregationProcessor.buildAggregations({
-      type,
-      fields,
-      graphql_fields,
-      nested_fields,
-      args: {}
-    });
-
-    const body =
-      query && Object.keys(query).length ? { query, aggs } : { aggs };
-
-    let { aggregations } = await es.search({
-      index: "data",
-      type: "data",
-      size: 0,
-      _source: false,
-      body
-    });
-
-    let { pruned } = await aggregationProcessor.pruneAggregations({
-      nested_fields,
-      aggs: aggregations
-    });
-
-    this.setState({
-      aggs: agggs.map(x => ({ ...x, ...pruned[x.field] }))
-    });
-  };
-
-  fetchData = async () => {
-    let { es, sqon, page, pageSize } = this.state;
-    const query = new FilterProcessor().buildFilters("", nested, sqon);
-    const response = await es.search({
-      index: "data",
-      type: "data",
-      from: (page - 1) * pageSize,
-      size: pageSize,
-      body: { query }
-    });
-    const data = response.hits.hits.map(x => x._source);
-    this.setState({ data });
-  };
-
   setSqon = sqon => {
-    this.setState({ sqon: sqon || this.defaultSqon }, () => this.fetchData());
+    this.setState({ sqon: sqon || this.defaultSqon });
+  };
+
+  query = () => {
+    let { sqon, page, pageSize } = this.state;
+
+    const esQuery = removeProp(
+      new FilterProcessor().buildFilters("", [], sqon),
+      "boost"
+    );
+    const esQueryString = stringifyObject(esQuery, {
+      singleQuotes: false
+    })
+      .split("\t")
+      .join("")
+      .split("\n")
+      .join("");
+    const skip = (page - 1) * pageSize;
+    const limit = pageSize;
+    const graphql = `
+      {
+        projects(
+          query: ${esQueryString},
+          sort: [version__asc],
+          skip: ${skip},
+          limit: ${limit}
+        ) {
+          hits {
+            _id
+            _source {
+              description
+              roles
+              name
+              label
+              version
+              wikiLink
+            }
+          }
+        }
+      }
+    `;
+    return query(graphql);
   };
 
   render() {
-    let { aggs, sqon, data } = this.state;
+    let { sqon } = this.state;
+    let { aggs } = this.props;
     return (
-      <div className="Table">
-        <div style={{ marginTop: 40 }}>
-          <CurrentSQON sqon={sqon} setSQON={this.setSqon} />
-          <div style={{ display: "flex" }}>
-            <div style={{ width: 300 }}>
-              {aggs.map(
-                agg =>
-                  agg.type === "NumericAggregations" ? (
-                    <RangeAgg
-                      {...agg}
-                      key={agg.field}
-                      handleChange={({ max, min, field }) => {
-                        this.setSqon(
-                          replaceSQON(
-                            {
-                              op: "and",
-                              content: [
-                                { op: ">=", content: { field, value: min } },
-                                { op: "<=", content: { field, value: max } }
-                              ]
-                            },
-                            sqon
-                          )
-                        );
-                      }}
-                    />
-                  ) : (
-                    <TermAgg
-                      {...agg}
-                      key={agg.field}
-                      Content={({ content, ...props }) => (
-                        <div
-                          {...props}
-                          onClick={() =>
-                            this.setSqon(
-                              toggleSQON(
-                                {
-                                  op: "and",
-                                  content: [
-                                    {
-                                      op: "in",
-                                      content: {
-                                        ...content,
-                                        value: [content.value] || []
+      <Connect
+        query={this.query()}
+        children={({ loaded, data, error }) => (
+          <div className="Table">
+            <div style={{ marginTop: 40 }}>
+              <CurrentSQON sqon={sqon} setSQON={this.setSqon} />
+              <div style={{ display: "flex" }}>
+                <div style={{ width: 300 }}>
+                  {aggregations
+                    .map(x => ({
+                      ...x,
+                      data:
+                        aggs.loaded && aggs.data.projects.aggregations[x.field]
+                    }))
+                    .map(
+                      agg =>
+                        agg.type === "numeric" ? (
+                          <RangeAgg
+                            {...agg}
+                            stats={agg.data || { min: 0, max: 1 }}
+                            key={agg.field + JSON.stringify(agg.data)}
+                            handleChange={({ max, min, field }) => {
+                              this.setSqon(
+                                replaceSQON(
+                                  {
+                                    op: "and",
+                                    content: [
+                                      {
+                                        op: ">=",
+                                        content: { field, value: min }
+                                      },
+                                      {
+                                        op: "<=",
+                                        content: { field, value: max }
                                       }
-                                    }
-                                  ]
-                                },
-                                sqon
-                              )
-                            )
-                          }
-                        />
-                      )}
-                      isActive={d =>
-                        inCurrentSQON({
-                          value: d.value,
-                          dotField: d.field,
-                          currentSQON: sqon
-                        })
-                      }
-                    />
-                  )
-              )}
-            </div>
-            <div style={{ flexGrow: 1 }}>
-              <ReactTable
-                loading={!data.length}
-                data={data}
-                columns={[
-                  { Header: "First", accessor: "first" },
-                  { Header: "Last", accessor: "last" },
-                  { Header: "Gender", accessor: "gender" },
-                  {
-                    Header: "File Count",
-                    id: "file_count",
-                    accessor: x => x.files.length
-                  }
-                ]}
-                defaultPageSize={20}
-                className="-striped -highlight"
-              />
+                                    ]
+                                  },
+                                  sqon
+                                )
+                              );
+                            }}
+                          />
+                        ) : (
+                          <TermAgg
+                            {...agg}
+                            buckets={agg.data ? agg.data.buckets : []}
+                            key={agg.field}
+                            Content={({ content, ...props }) => (
+                              <div
+                                {...props}
+                                onClick={() =>
+                                  this.setSqon(
+                                    toggleSQON(
+                                      {
+                                        op: "and",
+                                        content: [
+                                          {
+                                            op: "in",
+                                            content: {
+                                              ...content,
+                                              value: [content.value] || []
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      sqon
+                                    )
+                                  )
+                                }
+                              />
+                            )}
+                            isActive={d =>
+                              inCurrentSQON({
+                                value: d.value,
+                                dotField: d.field,
+                                currentSQON: sqon
+                              })
+                            }
+                          />
+                        )
+                    )}
+                </div>
+                <div style={{ flexGrow: 1 }}>
+                  <ReactTable
+                    loading={!loaded}
+                    data={loaded ? data.projects.hits.map(x => x._source) : []}
+                    columns={[
+                      { Header: "Name", accessor: "name" },
+                      { Header: "Description", accessor: "description" },
+                      { Header: "Label", accessor: "label" },
+                      { Header: "Wiki", accessor: "wikiLink" },
+                      { Header: "Version", accessor: "version" }
+                    ]}
+                    defaultPageSize={20}
+                    className="-striped -highlight"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        )}
+      />
     );
   }
 }
 
-export default Table;
+export default withAggs(aggregations)(Table);
