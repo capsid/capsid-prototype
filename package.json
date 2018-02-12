@@ -4,6 +4,7 @@
   "description": "CaPSID API",
   "scripts": {
     "start": "BABEL_DISABLE_CACHE=1 nodemon -e js,graphql src/server.js --exec babel-node",
+    "seed": "babel-node src/seed.js",
     "build": "babel src -d dist",
     "serve": "node dist/server.js",
     "test": "jest"
@@ -37,6 +38,7 @@
     "prettier": "^1.10.2"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0"
+    "babel-cli": "^6.26.0",
+    "mocker-data-generator": "^2.5.2"
   }
 }
