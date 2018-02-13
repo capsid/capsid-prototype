@@ -1,23 +1,21 @@
 import React from "react";
-import ReactTable from "react-table";
-import { Connect, query } from "urql";
 import stringifyObject from "stringify-object";
+import urlJoin from "url-join";
 
 import { CurrentSQON } from "@arranger/components/dist/Arranger";
+import DataTable from "@arranger/components/dist/DataTable";
 import { TermAgg } from "@arranger/components/dist/Aggs";
 import RangeAgg from "@arranger/components/dist/Aggs/RangeAgg";
 import {
   inCurrentSQON,
-  replaceSQON,
-  toggleSQON
+  currentFieldValue
 } from "@arranger/components/dist/SQONView/utils";
 import "@arranger/components/public/themeStyles/beagle/beagle.css";
-
 import FilterProcessor from "@arranger/middleware/dist/filters";
 
+import { apiRoot } from "../common/injectGlobals";
 import { removeProp } from "../utils";
 import withAggs from "./withAggs";
-import "react-table/react-table.css";
 
 const aggregations = [
   {
@@ -36,41 +34,46 @@ class Table extends React.Component {
   constructor(props) {
     super(props);
     this.defaultSqon = { op: "and", content: [] };
-    this.state = {
-      page: 1,
-      pageSize: 20,
-      sqon: this.defaultSqon
-    };
+    this.state = { sqon: this.defaultSqon };
   }
 
   setSqon = sqon => {
     this.setState({ sqon: sqon || this.defaultSqon });
   };
 
-  query = () => {
-    let { sqon, page, pageSize } = this.state;
+  fetchData = ({ sort, offset, first }) => {
+    let { sqon } = this.state;
 
     const esQuery = removeProp(
       new FilterProcessor().buildFilters("", [], sqon),
       "boost"
     );
+
+    // TODO: feels hacky, is here to transform JSON into graphQL accepted syntax
     const esQueryString = stringifyObject(esQuery, {
       singleQuotes: false
     })
       .split("\t")
       .join("")
       .split("\n")
+      .join("")
+      .replace('"phrase_prefix"', "phrase_prefix"); // search type is enum not string :/
+
+    const graphqlSort = JSON.stringify(
+      sort ? sort.map(({ field, order }) => `${field}__${order}`) : []
+    )
+      .split('"')
       .join("");
-    const skip = (page - 1) * pageSize;
-    const limit = pageSize;
+
     const graphql = `
-      {
+      query {
         projects(
           query: ${esQueryString},
-          sort: [version__asc],
-          skip: ${skip},
-          limit: ${limit}
+          sort: ${graphqlSort},
+          skip: ${offset},
+          limit: ${first}
         ) {
+          count
           hits {
             _id
             _source {
@@ -85,115 +88,108 @@ class Table extends React.Component {
         }
       }
     `;
-    return query(graphql);
+
+    return fetch(urlJoin(apiRoot, "graphql"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ query: graphql })
+    })
+      .then(response => response.json())
+      .then(({ data }) => ({
+        total: data.projects.count,
+        data: data.projects.hits.map(x => x._source)
+      }));
   };
 
   render() {
     let { sqon } = this.state;
     let { aggs } = this.props;
     return (
-      <Connect
-        query={this.query()}
-        children={({ loaded, data, error }) => (
-          <div className="Table">
-            <div style={{ marginTop: 40 }}>
-              <CurrentSQON sqon={sqon} setSQON={this.setSqon} />
-              <div style={{ display: "flex" }}>
-                <div style={{ width: 300 }}>
-                  {aggregations
-                    .map(x => ({
-                      ...x,
-                      data:
-                        aggs.loaded && aggs.data.projects.aggregations[x.field]
-                    }))
-                    .map(
-                      agg =>
-                        agg.type === "numeric" ? (
-                          <RangeAgg
-                            {...agg}
-                            stats={agg.data || { min: 0, max: 1 }}
-                            key={agg.field + JSON.stringify(agg.data)}
-                            handleChange={({ max, min, field }) => {
-                              this.setSqon(
-                                replaceSQON(
-                                  {
-                                    op: "and",
-                                    content: [
-                                      {
-                                        op: ">=",
-                                        content: { field, value: min }
-                                      },
-                                      {
-                                        op: "<=",
-                                        content: { field, value: max }
-                                      }
-                                    ]
-                                  },
-                                  sqon
-                                )
-                              );
-                            }}
-                          />
-                        ) : (
-                          <TermAgg
-                            {...agg}
-                            buckets={agg.data ? agg.data.buckets : []}
-                            key={agg.field}
-                            Content={({ content, ...props }) => (
-                              <div
-                                {...props}
-                                onClick={() =>
-                                  this.setSqon(
-                                    toggleSQON(
-                                      {
-                                        op: "and",
-                                        content: [
-                                          {
-                                            op: "in",
-                                            content: {
-                                              ...content,
-                                              value: [content.value] || []
-                                            }
-                                          }
-                                        ]
-                                      },
-                                      sqon
-                                    )
-                                  )
-                                }
-                              />
-                            )}
-                            isActive={d =>
-                              inCurrentSQON({
-                                value: d.value,
-                                dotField: d.field,
-                                currentSQON: sqon
-                              })
-                            }
-                          />
-                        )
-                    )}
-                </div>
-                <div style={{ flexGrow: 1 }}>
-                  <ReactTable
-                    loading={!loaded}
-                    data={loaded ? data.projects.hits.map(x => x._source) : []}
-                    columns={[
-                      { Header: "Name", accessor: "name" },
-                      { Header: "Description", accessor: "description" },
-                      { Header: "Label", accessor: "label" },
-                      { Header: "Wiki", accessor: "wikiLink" },
-                      { Header: "Version", accessor: "version" }
-                    ]}
-                    defaultPageSize={20}
-                    className="-striped -highlight"
-                  />
-                </div>
-              </div>
+      <div className="Table">
+        <div style={{ marginTop: 40 }}>
+          <CurrentSQON sqon={sqon} setSQON={this.setSqon} />
+          <div style={{ display: "flex" }}>
+            <div style={{ width: 300 }}>
+              {aggregations
+                .map(x => ({
+                  ...x,
+                  data: aggs.loaded && aggs.data.projects.aggregations[x.field]
+                }))
+                .map(x => ({ ...x, stats: x.data || { min: 0, max: 1 } }))
+                .map(
+                  agg =>
+                    agg.type === "numeric" ? (
+                      <RangeAgg
+                        {...agg}
+                        stats={agg.stats}
+                        key={agg.field + JSON.stringify(agg.data)}
+                        value={{
+                          min:
+                            currentFieldValue({
+                              sqon,
+                              dotField: agg.field,
+                              op: ">="
+                            }) || agg.stats.min,
+                          max:
+                            currentFieldValue({
+                              sqon,
+                              dotField: agg.field,
+                              op: "<="
+                            }) || agg.stats.max
+                        }}
+                        handleNextSQON={nextSQON =>
+                          this.setSqon(nextSQON(sqon))
+                        }
+                      />
+                    ) : (
+                      <TermAgg
+                        {...agg}
+                        buckets={agg.data ? agg.data.buckets : []}
+                        key={agg.field}
+                        handleNextSQON={nextSQON =>
+                          this.setSqon(nextSQON(sqon))
+                        }
+                        isActive={d =>
+                          inCurrentSQON({
+                            value: d.value,
+                            dotField: d.field,
+                            currentSQON: sqon
+                          })
+                        }
+                      />
+                    )
+                )}
+            </div>
+            <div style={{ flexGrow: 1 }}>
+              <DataTable
+                sqon={sqon}
+                allowTogglingColumns={false}
+                allowTSVExport={false}
+                config={{
+                  columns: [
+                    { Header: "Name", accessor: "name" },
+                    { Header: "Description", accessor: "description" },
+                    { Header: "Label", accessor: "label" },
+                    { Header: "Wiki", accessor: "wikiLink" },
+                    { Header: "Version", accessor: "version" }
+                  ]
+                }}
+                handleNextFilterSQON={nextFilterSQON => {
+                  this.setSqon(
+                    nextFilterSQON({
+                      sqon,
+                      fields: ["name", "description", "label", "wikiLink"]
+                    })
+                  );
+                }}
+                fetchData={this.fetchData}
+              />
             </div>
           </div>
-        )}
-      />
+        </div>
+      </div>
     );
   }
 }
