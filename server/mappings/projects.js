@@ -1,5 +1,6 @@
 export default {
   properties: {
+    id: { type: "keyword" },
     description: { type: "text" },
     roles: { type: "keyword" },
     label: { type: "keyword" },

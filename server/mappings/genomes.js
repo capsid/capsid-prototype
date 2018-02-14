@@ -2,7 +2,8 @@ export default {
   mappings: {
     _doc: {
       properties: {
-        accession: { type: "keyword" },
+        id: { type: "keyword" },
+        accession: { type: "keyword", copy_to: "id" },
         gi: { type: "long" },
         left: { type: "long" },
         length: { type: "long" },

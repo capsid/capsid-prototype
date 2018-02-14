@@ -2,6 +2,7 @@ export default {
   mappings: {
     _doc: {
       properties: {
+        id: { type: "keyword" },
         genome: { type: "long" },
         uid: { type: "text" },
         locusTag: { type: "keyword" },

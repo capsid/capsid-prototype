@@ -2,6 +2,7 @@ export default {
   mappings: {
     _doc: {
       properties: {
+        id: { type: "keyword" },
         projectLabel: { type: "keyword" },
         aligner: { type: "keyword" },
         sample: { type: "keyword" },
