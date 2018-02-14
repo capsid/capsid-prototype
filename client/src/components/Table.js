@@ -139,8 +139,8 @@ class Table extends React.Component {
                               op: "<="
                             }) || agg.stats.max
                         }}
-                        handleNextSQON={nextSQON =>
-                          this.setSqon(nextSQON(sqon))
+                        handleChange={({ generateNextSQON }) =>
+                          this.setSqon(generateNextSQON(sqon))
                         }
                       />
                     ) : (
@@ -148,8 +148,8 @@ class Table extends React.Component {
                         {...agg}
                         buckets={agg.data ? agg.data.buckets : []}
                         key={agg.field}
-                        handleNextSQON={nextSQON =>
-                          this.setSqon(nextSQON(sqon))
+                        handleValueClick={({ generateNextSQON }) =>
+                          this.setSqon(generateNextSQON(sqon))
                         }
                         isActive={d =>
                           inCurrentSQON({
@@ -176,14 +176,14 @@ class Table extends React.Component {
                     { Header: "Version", accessor: "version" }
                   ]
                 }}
-                handleNextFilterSQON={nextFilterSQON => {
+                onFilterChange={({ generateNextSQON }) =>
                   this.setSqon(
-                    nextFilterSQON({
+                    generateNextSQON({
                       sqon,
                       fields: ["name", "description", "label", "wikiLink"]
                     })
-                  );
-                }}
+                  )
+                }
                 fetchData={this.fetchData}
               />
             </div>
