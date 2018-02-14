@@ -5,7 +5,8 @@ import { connect } from "react-redux";
 import AuthRedirect from "./AuthRedirect";
 import Header from "./Header";
 import Login from "./Login";
-import Table from "./Table";
+import OldTable from "./OldTable";
+import Projects from "./Projects";
 
 const ProtectedRoute = connect(state => ({
   token: state.user.token
@@ -19,7 +20,8 @@ const App = () => (
     <div className="App">
       <Header />
       <Switch>
-        <ProtectedRoute exact path="/" component={Table} />
+        <ProtectedRoute exact path="/" component={Projects} />
+        <ProtectedRoute exact path="/old-table" component={OldTable} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/auth-redirect" component={AuthRedirect} />
         <Route exact path="/redirected" component={() => null} />
