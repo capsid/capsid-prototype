@@ -2,6 +2,7 @@ export default {
   mappings: {
     _doc: {
       properties: {
+        id: { type: "keyword" },
         genome: { type: "long" },
         projectLabel: { type: "keyword" },
         sequence: { type: "text" },
