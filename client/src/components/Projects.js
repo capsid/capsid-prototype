@@ -1,5 +1,5 @@
 import React from "react";
-import { compose, withPropsOnChange } from "recompose";
+import { compose } from "recompose";
 import { withRouter } from "react-router-dom";
 
 import Table from "./Table";
