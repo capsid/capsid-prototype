@@ -2,6 +2,16 @@ import u from "updeep";
 
 import { user as actions } from "../actions";
 
+const getUserLocalStorage = () => ({
+  token: localStorage.getItem("token"),
+  profile: localStorage.getItem("profile")
+});
+
+const setUserLocalStorage = ({ token, profile }) => {
+  localStorage.setItem("token", token);
+  localStorage.setItem("profile", profile);
+};
+
 // ============================================================================
 // User Action Creators
 // ============================================================================
@@ -18,19 +28,20 @@ export const logout = () => ({ type: actions.LOGOUT });
 // ============================================================================
 
 const defaultState = {
-  token: null,
-  profile: null
+  ...getUserLocalStorage()
 };
 
 export default function(state = defaultState, action) {
   let update;
   switch (action.type) {
     case actions.LOGIN:
+      setUserLocalStorage(action.payload);
       update = action.payload;
       break;
 
     case actions.LOGOUT:
-      update = { token: defaultState.token, profile: defaultState.profile };
+      update = { token: null, profile: null };
+      setUserLocalStorage(update);
       break;
 
     default:
