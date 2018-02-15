@@ -5,6 +5,7 @@ import { withRouter } from "react-router-dom";
 import { currentFilterValue } from "@arranger/components/dist/SQONView/utils";
 import TextFilter from "@arranger/components/dist/DataTable/TableToolbar/TextFilter";
 import CurrentSQON from "@arranger/components/dist/Arranger/CurrentSQON";
+import "@arranger/components/public/themeStyles/beagle/beagle.css";
 
 import AggPanel from "./AggPanel";
 import Table from "./Table";
