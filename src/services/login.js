@@ -1,5 +1,5 @@
 import urlJoin from "url-join";
-import withParams from "with-query";
+import withQuery from "with-query";
 
 import { egoAppId, egoApiRoot } from "../common/injectGlobals";
 
@@ -8,7 +8,7 @@ gapi.load("auth2");
 
 export const googleLogin = token =>
   fetch(
-    withParams(urlJoin(egoApiRoot, "oauth/google/token"), {
+    withQuery(urlJoin(egoApiRoot, "oauth/google/token"), {
       client_id: egoAppId
     }),
     {
