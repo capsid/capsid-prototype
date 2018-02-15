@@ -21,6 +21,7 @@
     "react-table": "^6.7.6",
     "recompose": "^0.26.0",
     "redux": "^3.7.2",
+    "rison": "^0.1.1",
     "stringify-object": "^3.2.2",
     "updeep": "^1.0.0",
     "url-join": "^4.0.0",
