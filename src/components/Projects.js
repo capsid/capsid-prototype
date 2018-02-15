@@ -15,33 +15,33 @@ import {
   withEsQuery
 } from "../utils";
 
-const defaultSort = ["name__asc"];
-
-const columnConfig = [
-  { Header: "Name", accessor: "name" },
-  { Header: "Description", accessor: "description", sortable: false },
-  { Header: "Label", accessor: "label" },
-  { Header: "Wiki", accessor: "wikiLink", sortable: false },
-  { Header: "Version", accessor: "version" }
-];
-
-const aggConfig = [
-  {
-    field: "label",
-    displayName: "Label",
-    type: "term"
-  },
-  {
-    field: "version",
-    displayName: "Version",
-    type: "numeric"
-  }
-];
+const config = {
+  defaultSort: ["name__asc"],
+  columns: [
+    { Header: "Name", accessor: "name" },
+    { Header: "Description", accessor: "description", sortable: false },
+    { Header: "Label", accessor: "label" },
+    { Header: "Wiki", accessor: "wikiLink", sortable: false },
+    { Header: "Version", accessor: "version" }
+  ],
+  aggs: [
+    {
+      field: "label",
+      displayName: "Label",
+      type: "term"
+    },
+    {
+      field: "version",
+      displayName: "Version",
+      type: "numeric"
+    }
+  ]
+};
 
 const ProjectsTable = compose(
   withRouter,
   withParams,
-  withSort(defaultSort),
+  withSort(config.defaultSort),
   withSQON,
   withUpdateSQON,
   withEsQuery
@@ -62,7 +62,11 @@ const ProjectsTable = compose(
             <AggPanel {...aggs} sqon={sqon} />
           </div>
           <div style={{ flexGrow: 1 }}>
-            <Table data={mapNodes(nodes)} columns={columnConfig} sort={sort} />
+            <Table
+              data={mapNodes(nodes)}
+              columns={config.columns}
+              sort={sort}
+            />
           </div>
         </div>
         <button onClick={() => refetch()}>Back To Start!</button>
@@ -74,7 +78,7 @@ const ProjectsTable = compose(
 
 const Projects = () => (
   <div className="Projects">
-    <ProjectAggregationContainer config={aggConfig}>
+    <ProjectAggregationContainer config={config.aggs}>
       {aggs => <ProjectsTable aggs={aggs} />}
     </ProjectAggregationContainer>
   </div>
