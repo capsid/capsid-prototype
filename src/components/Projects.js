@@ -1,6 +1,9 @@
 import React from "react";
 import { compose } from "recompose";
 import { withRouter } from "react-router-dom";
+
+import { currentFilterValue } from "@arranger/components/dist/SQONView/utils";
+import TextFilter from "@arranger/components/dist/DataTable/TableToolbar/TextFilter";
 import CurrentSQON from "@arranger/components/dist/Arranger/CurrentSQON";
 
 import AggPanel from "./AggPanel";
@@ -17,6 +20,7 @@ import {
 
 const config = {
   defaultSort: ["name__asc"],
+  filterColumns: ["name", "description", "label", "wikiLink"],
   columns: [
     { Header: "Name", accessor: "name" },
     { Header: "Description", accessor: "description", sortable: false },
@@ -62,6 +66,16 @@ const ProjectsTable = compose(
             <AggPanel {...aggs} sqon={sqon} />
           </div>
           <div style={{ flexGrow: 1 }}>
+            <div>
+              <TextFilter
+                value={currentFilterValue(sqon)}
+                onChange={({ generateNextSQON }) => {
+                  updateSQON(
+                    generateNextSQON({ sqon, fields: config.filterColumns })
+                  );
+                }}
+              />
+            </div>
             <Table
               data={mapNodes(nodes)}
               columns={config.columns}
