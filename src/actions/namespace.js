@@ -3,10 +3,10 @@ const namespace = (_namespace, constants) => {
     constants.reduce((obj, constant) => {
       return {
         ...obj,
-        [constant]: `${_namespace}/${constant}`
-      };
+        [constant]: `${_namespace}/${constant}`,
+      }
     }, {})
-  );
-};
+  )
+}
 
-export default namespace;
+export default namespace

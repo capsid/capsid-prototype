@@ -4,8 +4,7 @@ import urlJoin from "url-join";
 
 import CurrentSQON from "@arranger/components/dist/Arranger/CurrentSQON";
 import DataTable from "@arranger/components/dist/DataTable";
-import { TermAgg } from "@arranger/components/dist/Aggs";
-import RangeAgg from "@arranger/components/dist/Aggs/RangeAgg";
+import { TermAgg, RangeAgg } from "@arranger/components/dist/Aggs";
 import {
   inCurrentSQON,
   currentFieldValue

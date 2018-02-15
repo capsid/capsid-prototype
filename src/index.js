@@ -18,6 +18,7 @@ import urlJoin from "url-join";
 
 import App from "./components/App";
 import finalReducer from "./reducers/reduce";
+import registerServiceWorker from "./registerServiceWorker";
 import { apiRoot } from "./common/injectGlobals";
 
 import "./index.css";
@@ -47,3 +48,4 @@ ReactDOM.render(
   </UrqlProvider>,
   document.getElementById("root")
 );
+registerServiceWorker();

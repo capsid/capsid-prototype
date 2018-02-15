@@ -1,5 +1,6 @@
 const defaults = n => ({
   items: {
+    count: 0,
     pageInfo: {},
     nodes: [...Array(n)].map(() => ({}))
   }
