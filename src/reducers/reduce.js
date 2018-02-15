@@ -1,11 +1,11 @@
-import { combineReducers } from 'redux'
+import { combineReducers } from "redux";
 
-import reduceUser from './reduceUser'
+import reduceUser from "./reduceUser";
 
 let reducers = {
-  user: reduceUser,
-}
+  user: reduceUser
+};
 
-let finalReducer = combineReducers(reducers)
+let finalReducer = combineReducers(reducers);
 
-export default finalReducer
+export default finalReducer;
