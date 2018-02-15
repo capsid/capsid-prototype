@@ -1,13 +1,19 @@
 import React from "react";
 import { compose } from "recompose";
 import { withRouter } from "react-router-dom";
+import CurrentSQON from "@arranger/components/dist/Arranger/CurrentSQON";
 
 import AggPanel from "./AggPanel";
 import Table from "./Table";
 import { ProjectContainer, ProjectAggregationContainer } from "./containers";
-import { mapNodes, withParams, withSort, withSQON } from "../utils";
-
-const query = { bool: { must: [] } };
+import {
+  mapNodes,
+  withParams,
+  withSort,
+  withUpdateSQON,
+  withSQON,
+  withEsQuery
+} from "../utils";
 
 const defaultSort = ["name__asc"];
 
@@ -36,9 +42,11 @@ const ProjectsTable = compose(
   withRouter,
   withParams,
   withSort(defaultSort),
-  withSQON
-)(({ aggs, sort, sqon, history, params }) => (
-  <ProjectContainer first={20} sort={sort} query={query}>
+  withSQON,
+  withUpdateSQON,
+  withEsQuery
+)(({ aggs, sort, sqon, updateSQON, esQuery }) => (
+  <ProjectContainer first={20} sort={sort} query={esQuery}>
     {({
       data: {
         items: { nodes, count, pageInfo: { hasNextPage } },
@@ -48,9 +56,7 @@ const ProjectsTable = compose(
       loadMore
     }) => (
       <div>
-        <div>
-          <pre>{JSON.stringify(sqon, null, 2)}</pre>
-        </div>
+        <CurrentSQON sqon={sqon} setSQON={updateSQON} />
         <div style={{ display: "flex" }}>
           <div style={{ width: 300 }}>
             <AggPanel {...aggs} sqon={sqon} />
