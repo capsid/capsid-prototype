@@ -2,14 +2,21 @@ import u from "updeep";
 
 import { user as actions } from "../actions";
 
-const getUserLocalStorage = () => ({
-  token: localStorage.getItem("token"),
-  profile: localStorage.getItem("profile")
-});
+const getUserLocalStorage = () => {
+  let token = null,
+    profile = null;
+  try {
+    token = localStorage.getItem("token");
+    profile = JSON.parse(localStorage.getItem("profile"));
+  } catch (e) {
+    token = profile = null;
+  }
+  return { token, profile };
+};
 
 const setUserLocalStorage = ({ token, profile }) => {
   localStorage.setItem("token", token);
-  localStorage.setItem("profile", profile);
+  localStorage.setItem("profile", JSON.stringify(profile));
 };
 
 // ============================================================================
