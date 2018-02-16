@@ -23,6 +23,7 @@
     "recompose": "^0.26.0",
     "redux": "^3.7.2",
     "rison": "^0.1.1",
+    "string-humanize": "^1.0.0",
     "stringify-object": "^3.2.2",
     "updeep": "^1.0.0",
     "url-join": "^4.0.0",

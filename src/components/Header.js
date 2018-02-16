@@ -1,9 +1,19 @@
 import React from "react";
+import { compose } from "recompose";
 import { connect } from "react-redux";
+import { withRouter } from "react-router";
+import { NavLink } from "react-router-dom";
 
 import LogoutButton from "./LogoutButton";
 
-const Header = ({ profile }) => (
+const enhance = compose(
+  withRouter,
+  connect(state => ({
+    profile: state.user.profile
+  }))
+);
+
+const Header = ({ profile, location: { pathname } }) => (
   <header>
     <div
       style={{
@@ -14,7 +24,19 @@ const Header = ({ profile }) => (
         padding: 20
       }}
     >
-      <span>Capsid 2.0</span>
+      <div>
+        <NavLink to="/">Capsid 2.0</NavLink>
+        {[["Search", "/search/projects"]].map(([label, to]) => (
+          <NavLink
+            key={label}
+            activeStyle={{ color: "red" }}
+            style={{ marginLeft: 20 }}
+            to={to}
+          >
+            {label}
+          </NavLink>
+        ))}
+      </div>
       {profile && (
         <div style={{ marginLeft: "auto" }}>
           {profile.email}
@@ -25,6 +47,4 @@ const Header = ({ profile }) => (
   </header>
 );
 
-export default connect(state => ({
-  profile: state.user.profile
-}))(Header);
+export default enhance(Header);
