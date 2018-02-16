@@ -1,7 +1,6 @@
 let {
   REACT_APP_API_ROOT,
   REACT_APP_EGO_API_ROOT,
-  REACT_APP_GRAPHQL_ENDPOINT,
   REACT_APP_GOOGLE_APP_ID,
   REACT_APP_EGO_APP_ID,
   REACT_APP_DEFAULT_REDIRECT_URI,
@@ -9,7 +8,6 @@ let {
 } = process.env;
 
 export const apiRoot = REACT_APP_API_ROOT;
-export const graphqlEndpoint = REACT_APP_GRAPHQL_ENDPOINT;
 
 export const egoApiRoot = REACT_APP_EGO_API_ROOT;
 export const egoAppId = REACT_APP_EGO_APP_ID;
