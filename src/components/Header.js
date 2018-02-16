@@ -5,13 +5,23 @@ import LogoutButton from "./LogoutButton";
 
 const Header = ({ profile }) => (
   <header>
-    <h1>Welcome to Capsid</h1>
-    {profile && (
-      <div>
-        You are: {profile.firstName} {profile.lastName} {profile.email}
-        <LogoutButton />
-      </div>
-    )}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+        padding: 20
+      }}
+    >
+      <span>Capsid 2.0</span>
+      {profile && (
+        <div style={{ marginLeft: "auto" }}>
+          {profile.email}
+          <LogoutButton />
+        </div>
+      )}
+    </div>
   </header>
 );
 

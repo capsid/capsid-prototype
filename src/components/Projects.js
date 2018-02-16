@@ -1,6 +1,7 @@
 import React from "react";
 import { compose } from "recompose";
 import { withRouter } from "react-router-dom";
+import queryString from "query-string";
 
 import { currentFilterValue } from "@arranger/components/dist/SQONView/utils";
 import TextFilter from "@arranger/components/dist/DataTable/TableToolbar/TextFilter";
@@ -50,7 +51,7 @@ const ProjectsTable = compose(
   withSQON,
   withUpdateSQON,
   withEsQuery
-)(({ aggs, sort, sqon, updateSQON, esQuery }) => (
+)(({ aggs, sort, sqon, updateSQON, esQuery, params, history }) => (
   <ProjectContainer first={20} sort={sort} query={esQuery}>
     {({
       data: {
@@ -61,31 +62,42 @@ const ProjectsTable = compose(
       loadMore
     }) => (
       <div>
-        <CurrentSQON sqon={sqon} setSQON={updateSQON} />
         <div style={{ display: "flex" }}>
           <div style={{ width: 300 }}>
-            <AggPanel {...aggs} sqon={sqon} />
+            <AggPanel {...aggs} sqon={sqon} updateSQON={updateSQON} />
           </div>
           <div style={{ flexGrow: 1 }}>
-            <div>
-              <TextFilter
-                value={currentFilterValue(sqon)}
-                onChange={({ generateNextSQON }) => {
-                  updateSQON(
-                    generateNextSQON({ sqon, fields: config.filterColumns })
-                  );
-                }}
-              />
-            </div>
+            <CurrentSQON sqon={sqon} setSQON={updateSQON} />
+            <TextFilter
+              value={currentFilterValue(sqon)}
+              onChange={({ generateNextSQON }) => {
+                updateSQON(
+                  generateNextSQON({ sqon, fields: config.filterColumns })
+                );
+              }}
+            />
             <Table
               data={mapNodes(nodes)}
               columns={config.columns}
+              updateSort={({ sort }) =>
+                history.push({
+                  search: queryString.stringify({ ...params, sort })
+                })
+              }
               sort={sort}
             />
+            <div style={{ display: "flex" }}>
+              <button style={{ marginRight: "auto" }} onClick={() => refetch()}>
+                First Page
+              </button>
+              {hasNextPage && (
+                <button style={{ marginLeft: "auto" }} onClick={loadMore}>
+                  Next Page
+                </button>
+              )}
+            </div>
           </div>
         </div>
-        <button onClick={() => refetch()}>Back To Start!</button>
-        {hasNextPage && <button onClick={loadMore}>Load More!</button>}
       </div>
     )}
   </ProjectContainer>
