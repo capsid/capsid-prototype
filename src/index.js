@@ -17,7 +17,7 @@ import urlJoin from "url-join";
 
 import App from "./components/App";
 import finalReducer from "./reducers/reduce";
-import { apiRoot, graphqlEndpoint } from "./common/injectGlobals";
+import { apiRoot } from "./common/injectGlobals";
 
 import "./index.css";
 
@@ -29,7 +29,7 @@ const store = finalCreateStore(finalReducer);
 
 const client = new ApolloClient({
   link: createPersistedQueryLink().concat(
-    createHttpLink({ uri: urlJoin(apiRoot, graphqlEndpoint) })
+    createHttpLink({ uri: urlJoin(apiRoot, "graphql") })
   ),
   cache: new InMemoryCache()
 });
