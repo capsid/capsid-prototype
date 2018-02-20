@@ -63,7 +63,7 @@ const Search = ({
                   search: pathname === location.pathname ? location.search : ""
                 }}
               >
-                {console.log(location) || humanize(key)}
+                {humanize(key)}
               </NavLink>
             ))}
         </div>
