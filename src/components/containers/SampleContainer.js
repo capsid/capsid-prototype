@@ -5,12 +5,12 @@ import Container, { defaultOptions, loadMore } from "./Container";
 
 const Query = gql`
   query Projects(
-    $query: SamplesQuery!
-    $sort: [SamplesSortEnum]!
+    $query: SampleEsQuery!
+    $sort: [SampleEsSortEnum]!
     $first: Int!
     $cursor: String
   ) {
-    items: samplesConnection(
+    items: sampleEsConnection(
       query: $query
       sort: $sort
       first: $first

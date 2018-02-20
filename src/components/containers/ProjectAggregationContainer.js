@@ -4,8 +4,8 @@ import { graphql } from "react-apollo";
 import Container, { defaultOptions, defaultProps } from "./AggContainer";
 
 const Query = gql`
-  query ProjectAggregations($aggs: [ProjectsAggBlock!]) {
-    items: projects(aggs: $aggs) {
+  query ProjectAggregations($aggs: [ProjectEsAggBlock!]) {
+    items: projectEs(aggs: $aggs) {
       aggregations
     }
   }

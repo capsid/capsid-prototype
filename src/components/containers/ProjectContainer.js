@@ -5,12 +5,12 @@ import Container, { defaultOptions, loadMore } from "./Container";
 
 const Query = gql`
   query Projects(
-    $query: ProjectsQuery!
-    $sort: [ProjectsSortEnum]!
+    $query: ProjectEsQuery!
+    $sort: [ProjectEsSortEnum]!
     $first: Int!
     $cursor: String
   ) {
-    items: projectsConnection(
+    items: projectEsConnection(
       query: $query
       sort: $sort
       first: $first
