@@ -15,8 +15,13 @@ const getUserLocalStorage = () => {
 };
 
 const setUserLocalStorage = ({ token, profile }) => {
-  localStorage.setItem("token", token);
-  localStorage.setItem("profile", JSON.stringify(profile));
+  if (!token || !profile) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("profile");
+  } else {
+    localStorage.setItem("token", token);
+    localStorage.setItem("profile", JSON.stringify(profile));
+  }
 };
 
 // ============================================================================

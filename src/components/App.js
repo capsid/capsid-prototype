@@ -4,9 +4,9 @@ import { connect } from "react-redux";
 
 import AuthRedirect from "./AuthRedirect";
 import Header from "./Header";
+import Home from "./Home";
 import Login from "./Login";
-import OldTable from "./OldTable";
-import Projects from "./Projects";
+import Search from "./Search";
 
 const ProtectedRoute = connect(state => ({
   token: state.user.token
@@ -19,13 +19,15 @@ const App = () => (
   <BrowserRouter>
     <div className="App">
       <Header />
-      <Switch>
-        <ProtectedRoute exact path="/" component={Projects} />
-        <ProtectedRoute exact path="/old-table" component={OldTable} />
-        <Route exact path="/login" component={Login} />
-        <Route exact path="/auth-redirect" component={AuthRedirect} />
-        <Route exact path="/redirected" component={() => null} />
-      </Switch>
+      <div style={{ padding: 20 }}>
+        <Switch>
+          <ProtectedRoute exact path="/" component={Home} />
+          <ProtectedRoute exact path="/search/:tab" component={Search} />
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/auth-redirect" component={AuthRedirect} />
+          <Route exact path="/redirected" component={() => null} />
+        </Switch>
+      </div>
     </div>
   </BrowserRouter>
 );
