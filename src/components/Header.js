@@ -6,6 +6,8 @@ import { NavLink } from "react-router-dom";
 
 import LogoutButton from "./LogoutButton";
 
+const rootPath = x => x.split("/").filter(Boolean)[0];
+
 const enhance = compose(
   withRouter,
   connect(state => ({
@@ -29,6 +31,7 @@ const Header = ({ profile, location: { pathname } }) => (
         {[["Search", "/search/projects"]].map(([label, to]) => (
           <NavLink
             key={label}
+            isActive={(m, l) => rootPath(l.pathname) === rootPath(to)}
             activeStyle={{ color: "red" }}
             style={{ marginLeft: 20 }}
             to={to}

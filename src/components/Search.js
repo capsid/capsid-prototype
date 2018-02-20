@@ -1,12 +1,12 @@
 import React from "react";
 import { compose } from "recompose";
-import { withRouter, Link } from "react-router-dom";
+import { withRouter, NavLink } from "react-router-dom";
 import _ from "lodash";
 import humanize from "string-humanize";
 import queryString from "query-string";
 
 import { currentFilterValue } from "@arranger/components/dist/SQONView/utils";
-import TextFilter from "@arranger/components/dist/DataTable/TableToolbar/TextFilter";
+import TextFilter from "@arranger/components/dist/TextFilter";
 import CurrentSQON from "@arranger/components/dist/Arranger/CurrentSQON";
 import "@arranger/components/public/themeStyles/beagle/beagle.css";
 
@@ -32,6 +32,7 @@ const enhance = compose(
 const Search = ({
   match: { params: { tab } },
   esQuery,
+  location,
   history,
   params,
   sqon,
@@ -49,11 +50,22 @@ const Search = ({
       </div>
       <div style={{ flexGrow: 1 }}>
         <div style={{ padding: 10 }}>
-          {Object.keys(searchConfig).map(key => (
-            <Link key={key} style={{ marginLeft: 10 }} to={`/search/${key}`}>
-              {humanize(key)}
-            </Link>
-          ))}
+          {Object.keys(searchConfig)
+            .map(key => ({ key, pathname: `/search/${key}` }))
+            .map(({ key, pathname }) => (
+              <NavLink
+                key={key}
+                isActive={() => tab === key}
+                activeStyle={{ color: "red" }}
+                style={{ marginLeft: 10 }}
+                to={{
+                  pathname,
+                  search: pathname === location.pathname ? location.search : ""
+                }}
+              >
+                {console.log(location) || humanize(key)}
+              </NavLink>
+            ))}
         </div>
         <CurrentSQON sqon={sqon} setSQON={updateSQON} />
         <TextFilter
