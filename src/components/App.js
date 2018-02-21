@@ -6,9 +6,11 @@ import AuthRedirect from "./AuthRedirect";
 import Header from "./Header";
 import Home from "./Home";
 import Login from "./Login";
+import Search from "./Search";
+
+import Alignment from "./Alignment";
 import Project from "./Project";
 import Sample from "./Sample";
-import Search from "./Search";
 
 const ProtectedRoute = connect(state => ({
   token: state.user.token
@@ -27,6 +29,7 @@ const App = () => (
           <ProtectedRoute exact path="/search/:tab" component={Search} />
           <ProtectedRoute exact path="/projects/:id" component={Project} />
           <ProtectedRoute exact path="/samples/:id" component={Sample} />
+          <ProtectedRoute exact path="/alignments/:id" component={Alignment} />
           <Route exact path="/login" component={Login} />
           <Route exact path="/auth-redirect" component={AuthRedirect} />
           <Route exact path="/redirected" component={() => null} />

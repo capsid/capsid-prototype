@@ -2,7 +2,9 @@ import {
   ProjectsContainer,
   ProjectsAggregationContainer,
   SamplesContainer,
-  SamplesAggregationContainer
+  SamplesAggregationContainer,
+  AlignmentsContainer,
+  AlignmentsAggregationContainer
 } from "../components/containers";
 
 const linkArgs = ({ to, row: { _original }, value, accessor = "id" }) => ({
@@ -83,6 +85,54 @@ const searchConfig = ({ CellLink }) => ({
     ],
     Container: SamplesContainer,
     AggContainer: SamplesAggregationContainer
+  },
+  alignments: {
+    defaultSort: ["name__asc"],
+    filterColumns: [
+      "name",
+      "projectLabel",
+      "sampleName",
+      "aligner",
+      "platform",
+      "type"
+    ],
+    columns: [
+      {
+        Header: "ID / Name",
+        id: "name",
+        accessor: ({ name, id }) => name || id,
+        Cell: args => CellLink(linkArgs({ ...args, to: "alignments" }))
+      },
+      {
+        Header: "Project",
+        accessor: "projectLabel",
+        Cell: args =>
+          CellLink(linkArgs({ ...args, to: "projects", accessor: "projectId" }))
+      },
+      {
+        Header: "Sample",
+        accessor: "sampleName",
+        Cell: args =>
+          CellLink(linkArgs({ ...args, to: "samples", accessor: "sampleId" }))
+      },
+      { Header: "Aligner", accessor: "aligner" },
+      { Header: "Platform", accessor: "platform" },
+      { Header: "Type", accessor: "type" }
+    ],
+    aggs: [
+      {
+        field: "aligner",
+        displayName: "Aligner",
+        type: "term"
+      },
+      {
+        field: "platform",
+        displayName: "Platform",
+        type: "term"
+      }
+    ],
+    Container: AlignmentsContainer,
+    AggContainer: AlignmentsAggregationContainer
   }
 });
 

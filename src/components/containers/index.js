@@ -9,3 +9,9 @@ export { default as SamplesContainer } from "./SamplesContainer";
 export {
   default as SamplesAggregationContainer
 } from "./SamplesAggregationContainer";
+
+export { default as AlignmentContainer } from "./AlignmentContainer";
+export { default as AlignmentsContainer } from "./AlignmentsContainer";
+export {
+  default as AlignmentsAggregationContainer
+} from "./AlignmentsAggregationContainer";
