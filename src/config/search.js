@@ -1,16 +1,25 @@
 import {
-  ProjectContainer,
-  ProjectAggregationContainer,
-  SampleContainer,
-  SampleAggregationContainer
+  ProjectsContainer,
+  ProjectsAggregationContainer,
+  SamplesContainer,
+  SamplesAggregationContainer
 } from "../components/containers";
 
-export default {
+const linkArgs = ({ to, row: { _original }, value, accessor = "id" }) => ({
+  to: `/${to}/${_original[accessor]}`,
+  value
+});
+
+const searchConfig = ({ CellLink }) => ({
   projects: {
     defaultSort: ["name__asc"],
     filterColumns: ["name", "description", "label", "wikiLink"],
     columns: [
-      { Header: "Name", accessor: "name" },
+      {
+        Header: "Name",
+        accessor: "name",
+        Cell: args => CellLink(linkArgs({ ...args, to: "projects" }))
+      },
       { Header: "Description", accessor: "description", sortable: false },
       { Header: "Label", accessor: "label" },
       { Header: "Wiki", accessor: "wikiLink", sortable: false },
@@ -28,8 +37,8 @@ export default {
         type: "numeric"
       }
     ],
-    Container: ProjectContainer,
-    AggContainer: ProjectAggregationContainer
+    Container: ProjectsContainer,
+    AggContainer: ProjectsAggregationContainer
   },
   samples: {
     defaultSort: ["name__asc"],
@@ -42,11 +51,21 @@ export default {
       "source"
     ],
     columns: [
-      { Header: "Name", accessor: "name" },
+      {
+        Header: "ID / Name",
+        id: "name",
+        accessor: ({ name, id }) => name || id,
+        Cell: args => CellLink(linkArgs({ ...args, to: "samples" }))
+      },
+      {
+        Header: "Project",
+        accessor: "projectLabel",
+        Cell: args =>
+          CellLink(linkArgs({ ...args, to: "projects", accessor: "projectId" }))
+      },
       { Header: "Description", accessor: "description", sortable: false },
       { Header: "Cancer", accessor: "cancer" },
       { Header: "Source", accessor: "source" },
-      { Header: "Project Label", accessor: "projectLabel", sortable: false },
       { Header: "Role", accessor: "role" },
       { Header: "Version", accessor: "version" }
     ],
@@ -62,7 +81,9 @@ export default {
         type: "numeric"
       }
     ],
-    Container: SampleContainer,
-    AggContainer: SampleAggregationContainer
+    Container: SamplesContainer,
+    AggContainer: SamplesAggregationContainer
   }
-};
+});
+
+export default searchConfig;

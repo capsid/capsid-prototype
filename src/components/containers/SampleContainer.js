@@ -1,46 +1,36 @@
 import gql from "graphql-tag";
 import { graphql } from "react-apollo";
 
-import Container, { defaultOptions, loadMore } from "./Container";
+import Container from "./Container";
+import { fragments as projectFragments } from "./ProjectContainer";
+
+export const fragments = {
+  details: gql`
+    fragment SampleDetails on Sample {
+      source
+      role
+      description
+      cancer
+      name
+      version
+    }
+  `
+};
 
 const Query = gql`
-  query Projects(
-    $query: SampleEsQuery!
-    $sort: [SampleEsSortEnum]!
-    $first: Int!
-    $cursor: String
-  ) {
-    items: sampleEsConnection(
-      query: $query
-      sort: $sort
-      first: $first
-      after: $cursor
-    ) {
-      count
-      pageInfo {
-        hasNextPage
-        endCursor
-      }
-      nodes: edges {
-        node {
-          _id
-          _source {
-            id
-            source
-            projectLabel
-            role
-            description
-            cancer
-            version
-            name
-          }
-        }
+  query Sample($id: MongoID!) {
+    item: sampleById(_id: $id) {
+      _id
+      updatedAt
+      createdAt
+      ...SampleDetails
+      project {
+        ...ProjectDetails
       }
     }
   }
+  ${fragments.details}
+  ${projectFragments.details}
 `;
 
-export default graphql(Query, {
-  options: defaultOptions,
-  props: loadMore(Query)
-})(Container);
+export default graphql(Query)(Container);

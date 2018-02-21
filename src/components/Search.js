@@ -1,6 +1,6 @@
 import React from "react";
 import { compose } from "recompose";
-import { withRouter, NavLink } from "react-router-dom";
+import { withRouter, Link, NavLink } from "react-router-dom";
 import _ from "lodash";
 import humanize from "string-humanize";
 import queryString from "query-string";
@@ -13,6 +13,7 @@ import "@arranger/components/public/themeStyles/beagle/beagle.css";
 import AggPanel from "./AggPanel";
 import Table from "./Table";
 import searchConfig from "../config/search";
+
 import {
   mapNodes,
   withEsQuery,
@@ -29,6 +30,10 @@ const enhance = compose(
   withEsQuery
 );
 
+const configWithLink = searchConfig({
+  CellLink: ({ to, value }) => <Link to={to}>{value}</Link>
+});
+
 const Search = ({
   match: { params: { tab } },
   esQuery,
@@ -38,7 +43,7 @@ const Search = ({
   sqon,
   updateSQON
 }) => {
-  const config = searchConfig[tab];
+  const config = configWithLink[tab];
   if (!config) return null;
   const sort = params.sort ? _.flatten([params.sort]) : config.defaultSort;
   return (
@@ -50,7 +55,7 @@ const Search = ({
       </div>
       <div style={{ flexGrow: 1 }}>
         <div style={{ padding: 10 }}>
-          {Object.keys(searchConfig)
+          {Object.keys(configWithLink)
             .map(key => ({ key, pathname: `/search/${key}` }))
             .map(({ key, pathname }) => (
               <NavLink

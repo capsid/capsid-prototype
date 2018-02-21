@@ -12,6 +12,7 @@ export const defaultOptions = ({ children, config, ...props }) => ({
   notifyOnNetworkStatusChange: true,
   variables: {
     aggs: aggsConfigToGraphQL(config),
+    sort: ["id__asc"],
     ...(props || {})
   }
 });

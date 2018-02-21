@@ -4,8 +4,11 @@ import { graphql } from "react-apollo";
 import Container, { defaultOptions, defaultProps } from "./AggContainer";
 
 const Query = gql`
-  query ProjectAggregations($aggs: [ProjectEsAggBlock!]) {
-    items: projectEs(aggs: $aggs) {
+  query SamplesAggregation(
+    $aggs: [SampleEsAggBlock!]
+    $sort: [SampleEsSortEnum!]
+  ) {
+    items: sampleEsConnection(aggs: $aggs, sort: $sort) {
       aggregations
     }
   }
