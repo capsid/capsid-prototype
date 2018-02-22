@@ -77,7 +77,10 @@ const Search = ({
           value={currentFilterValue(sqon)}
           onChange={({ generateNextSQON }) => {
             updateSQON(
-              generateNextSQON({ sqon, fields: config.filterColumns })
+              generateNextSQON({
+                sqon,
+                fields: config.filterColumns.map(x => `${x}.search`)
+              })
             );
           }}
         />
