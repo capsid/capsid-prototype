@@ -9,6 +9,7 @@ import Login from "./Login";
 import Search from "./Search";
 
 import Alignment from "./Alignment";
+import MappedRead from "./MappedRead";
 import Project from "./Project";
 import Sample from "./Sample";
 
@@ -30,6 +31,7 @@ const App = () => (
           <ProtectedRoute exact path="/projects/:id" component={Project} />
           <ProtectedRoute exact path="/samples/:id" component={Sample} />
           <ProtectedRoute exact path="/alignments/:id" component={Alignment} />
+          <ProtectedRoute exact path="/reads/:id" component={MappedRead} />
           <Route exact path="/login" component={Login} />
           <Route exact path="/auth-redirect" component={AuthRedirect} />
           <Route exact path="/redirected" component={() => null} />

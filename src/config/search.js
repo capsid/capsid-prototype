@@ -4,7 +4,9 @@ import {
   SamplesContainer,
   SamplesAggregationContainer,
   AlignmentsContainer,
-  AlignmentsAggregationContainer
+  AlignmentsAggregationContainer,
+  MappedReadsContainer,
+  MappedReadsAggregationContainer
 } from "../components/containers";
 
 const linkArgs = ({ to, row: { _original }, value, accessor = "id" }) => ({
@@ -133,6 +135,64 @@ const searchConfig = ({ CellLink }) => ({
     ],
     Container: AlignmentsContainer,
     AggContainer: AlignmentsAggregationContainer
+  },
+  mappedReads: {
+    defaultSort: ["projectLabel__asc"],
+    filterColumns: [
+      "projectLabel",
+      "sampleName",
+      "alignmentName",
+      "sequencingType"
+    ],
+    columns: [
+      {
+        Header: "Project",
+        accessor: "projectLabel",
+        Cell: args =>
+          CellLink(linkArgs({ ...args, to: "projects", accessor: "projectId" }))
+      },
+      {
+        Header: "Sample",
+        accessor: "sampleName",
+        Cell: args =>
+          CellLink(linkArgs({ ...args, to: "samples", accessor: "sampleId" }))
+      },
+      {
+        Header: "Alignment",
+        accessor: "alignmentName",
+        Cell: args =>
+          CellLink(
+            linkArgs({ ...args, to: "alignments", accessor: "alignmentId" })
+          )
+      },
+      {
+        Header: "Read",
+        accessor: "readId",
+        Cell: args => CellLink(linkArgs({ ...args, to: "reads" }))
+      },
+      { Header: "Read Length", accessor: "readLength" },
+      { Header: "Align Score", accessor: "alignScore" },
+      { Header: "Sequencing Type", accessor: "sequencingType" }
+    ],
+    aggs: [
+      {
+        field: "readLength",
+        displayName: "Read Length",
+        type: "numeric"
+      },
+      {
+        field: "alignScore",
+        displayName: "Align Score",
+        type: "numeric"
+      },
+      {
+        field: "sequencingType",
+        displayName: "Sequencing Type",
+        type: "term"
+      }
+    ],
+    Container: MappedReadsContainer,
+    AggContainer: MappedReadsAggregationContainer
   }
 });
 

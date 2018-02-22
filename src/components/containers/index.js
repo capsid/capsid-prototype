@@ -15,3 +15,9 @@ export { default as AlignmentsContainer } from "./AlignmentsContainer";
 export {
   default as AlignmentsAggregationContainer
 } from "./AlignmentsAggregationContainer";
+
+export { default as MappedReadContainer } from "./MappedReadContainer";
+export { default as MappedReadsContainer } from "./MappedReadsContainer";
+export {
+  default as MappedReadsAggregationContainer
+} from "./MappedReadsAggregationContainer";
