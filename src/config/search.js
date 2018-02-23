@@ -93,7 +93,7 @@ const searchConfig = ({ CellLink }) => ({
     filterColumns: [
       "name",
       "projectLabel",
-      "sampleName",
+      "sample",
       "aligner",
       "platform",
       "type"
@@ -113,7 +113,7 @@ const searchConfig = ({ CellLink }) => ({
       },
       {
         Header: "Sample",
-        accessor: "sampleName",
+        accessor: "sample",
         Cell: args =>
           CellLink(linkArgs({ ...args, to: "samples", accessor: "sampleId" }))
       },
@@ -153,13 +153,13 @@ const searchConfig = ({ CellLink }) => ({
       },
       {
         Header: "Sample",
-        accessor: "sampleName",
+        accessor: "sample",
         Cell: args =>
           CellLink(linkArgs({ ...args, to: "samples", accessor: "sampleId" }))
       },
       {
         Header: "Alignment",
-        accessor: "alignmentName",
+        accessor: "alignment",
         Cell: args =>
           CellLink(
             linkArgs({ ...args, to: "alignments", accessor: "alignmentId" })

@@ -26,10 +26,10 @@ const Query = gql`
       updatedAt
       createdAt
       ...AlignmentDetails
-      sample {
+      sample_ {
         ...SampleDetails
       }
-      project {
+      project_ {
         ...ProjectDetails
       }
     }

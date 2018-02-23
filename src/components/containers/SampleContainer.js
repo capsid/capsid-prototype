@@ -24,7 +24,7 @@ const Query = gql`
       updatedAt
       createdAt
       ...SampleDetails
-      project {
+      project_ {
         ...ProjectDetails
       }
     }
