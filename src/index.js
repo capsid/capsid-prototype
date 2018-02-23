@@ -10,6 +10,7 @@ import { ApolloClient } from "apollo-client";
 import { ApolloProvider } from "react-apollo";
 import { createPersistedQueryLink } from "apollo-link-persisted-queries";
 import { createHttpLink } from "apollo-link-http";
+import { setContext } from "apollo-link-context";
 import { InMemoryCache } from "apollo-cache-inmemory";
 
 import { compose } from "recompose";
@@ -27,12 +28,17 @@ const finalCreateStore = compose(
 
 const store = finalCreateStore(finalReducer);
 
-const client = new ApolloClient({
-  link: createPersistedQueryLink().concat(
+const tokenLink = setContext((_, { headers }) => ({
+  headers: { ...headers, token: localStorage.getItem("token") || "" }
+}));
+
+const link = tokenLink.concat(
+  createPersistedQueryLink().concat(
     createHttpLink({ uri: urlJoin(apiRoot, "graphql") })
-  ),
-  cache: new InMemoryCache()
-});
+  )
+);
+
+const client = new ApolloClient({ link, cache: new InMemoryCache() });
 
 ReactDOM.render(
   <ApolloProvider client={client}>

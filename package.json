@@ -6,6 +6,7 @@
     "@arranger/components": "^0.1.0",
     "@arranger/middleware": "^0.1.0",
     "apollo-client-preset": "^1.0.8",
+    "apollo-link-context": "^1.0.7",
     "apollo-link-persisted-queries": "^0.1.0",
     "elasticsearch": "^14.1.0",
     "graphql": "^0.12.0",
