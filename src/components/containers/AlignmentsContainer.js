@@ -31,7 +31,7 @@ const Query = gql`
             projectId
             projectLabel
             sampleId
-            sampleName
+            sample
             aligner
             name
             platform

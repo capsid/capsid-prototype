@@ -31,9 +31,9 @@ const Query = gql`
             projectId
             projectLabel
             sampleId
-            sampleName
+            sample
             alignmentId
-            alignmentName
+            alignment
             sequence
             refStart
             refEnd
