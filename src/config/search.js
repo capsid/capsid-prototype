@@ -150,7 +150,7 @@ const searchConfig = ({ CellLink }) => ({
       {
         Header: "Taxonomy",
         id: "taxonomy",
-        accessor: x => console.log(x) || (x.taxonomy || [])[0]
+        accessor: x => (x.taxonomy || [])[0]
       },
       { Header: "# samples", accessor: "sampleCount" }
     ],
