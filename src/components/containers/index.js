@@ -16,8 +16,8 @@ export {
   default as AlignmentsAggregationContainer
 } from "./AlignmentsAggregationContainer";
 
-export { default as MappedReadContainer } from "./MappedReadContainer";
-export { default as MappedReadsContainer } from "./MappedReadsContainer";
+export { default as GenomeContainer } from "./GenomeContainer";
+export { default as GenomesContainer } from "./GenomesContainer";
 export {
-  default as MappedReadsAggregationContainer
-} from "./MappedReadsAggregationContainer";
+  default as GenomesAggregationContainer
+} from "./GenomesAggregationContainer";

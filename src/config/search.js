@@ -5,8 +5,8 @@ import {
   SamplesAggregationContainer,
   AlignmentsContainer,
   AlignmentsAggregationContainer,
-  MappedReadsContainer,
-  MappedReadsAggregationContainer
+  GenomesContainer,
+  GenomesAggregationContainer
 } from "../components/containers";
 
 const linkArgs = ({ to, row: { _original }, value, accessor = "id" }) => ({
@@ -136,63 +136,33 @@ const searchConfig = ({ CellLink }) => ({
     Container: AlignmentsContainer,
     AggContainer: AlignmentsAggregationContainer
   },
-  mappedReads: {
-    defaultSort: ["projectLabel__asc"],
-    filterColumns: [
-      "projectLabel",
-      "sampleName",
-      "alignmentName",
-      "sequencingType"
-    ],
+  genome: {
+    defaultSort: ["name__asc"],
+    filterColumns: ["name", "organism"],
     columns: [
       {
-        Header: "Project",
-        accessor: "projectLabel",
-        Cell: args =>
-          CellLink(linkArgs({ ...args, to: "projects", accessor: "projectId" }))
+        Header: "Id",
+        accessor: "gi",
+        Cell: args => CellLink(linkArgs({ ...args, to: "genome" }))
       },
+      { Header: "Name", accessor: "name" },
+      { Header: "Organism", accessor: "organism" },
       {
-        Header: "Sample",
-        accessor: "sample",
-        Cell: args =>
-          CellLink(linkArgs({ ...args, to: "samples", accessor: "sampleId" }))
+        Header: "Taxonomy",
+        id: "taxonomy",
+        accessor: x => console.log(x) || (x.taxonomy || [])[0]
       },
-      {
-        Header: "Alignment",
-        accessor: "alignment",
-        Cell: args =>
-          CellLink(
-            linkArgs({ ...args, to: "alignments", accessor: "alignmentId" })
-          )
-      },
-      {
-        Header: "Read",
-        accessor: "readId",
-        Cell: args => CellLink(linkArgs({ ...args, to: "reads" }))
-      },
-      { Header: "Read Length", accessor: "readLength" },
-      { Header: "Align Score", accessor: "alignScore" },
-      { Header: "Sequencing Type", accessor: "sequencingType" }
+      { Header: "# samples", accessor: "sampleCount" }
     ],
     aggs: [
       {
-        field: "readLength",
-        displayName: "Read Length",
+        field: "sampleCount",
+        displayName: "Number of Samples",
         type: "numeric"
-      },
-      {
-        field: "alignScore",
-        displayName: "Align Score",
-        type: "numeric"
-      },
-      {
-        field: "sequencingType",
-        displayName: "Sequencing Type",
-        type: "term"
       }
     ],
-    Container: MappedReadsContainer,
-    AggContainer: MappedReadsAggregationContainer
+    Container: GenomesContainer,
+    AggContainer: GenomesAggregationContainer
   }
 });
 

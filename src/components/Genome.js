@@ -2,19 +2,19 @@ import React from "react";
 import { compose } from "recompose";
 import { withRouter } from "react-router";
 
-import { MappedReadContainer } from "./containers";
+import { GenomeContainer } from "./containers";
 
 const enhance = compose(withRouter);
 
-const MappedRead = ({ match: { params: { id } } }) => (
-  <MappedReadContainer id={id}>
+const Genome = ({ match: { params: { id } } }) => (
+  <GenomeContainer id={id}>
     {({ data: { item } }) => (
       <div>
-        <h4>Read:</h4>
+        <h4>Genome:</h4>
         <pre>{JSON.stringify(item, null, 2)}</pre>
       </div>
     )}
-  </MappedReadContainer>
+  </GenomeContainer>
 );
 
-export default enhance(MappedRead);
+export default enhance(Genome);
