@@ -24,6 +24,7 @@ class Login extends Component {
     if (response && response.status === 200) {
       let jwt = await response.text();
       this.props.dispatch(login(jwt));
+      this.props.history.push("/");
     } else {
       console.error("response error");
     }

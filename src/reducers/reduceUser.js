@@ -2,7 +2,6 @@ import jwtDecode from "jwt-decode";
 import u from "updeep";
 
 import { user as actions } from "../actions";
-import { logoutAll } from "../services/login";
 
 // ============================================================================
 // User Helpers
@@ -34,28 +33,15 @@ const setUserLocalStorage = ({ token, profile }) => {
 // User Action Creators
 // ============================================================================
 
-export const login = token => async (dispatch, getState, { history }) => {
+export const login = token => dispatch => {
   const decoded = jwtDecode(token);
-  await dispatch({
+  dispatch({
     type: actions.LOGIN,
     payload: { token, profile: decoded.context.user }
   });
-  history.push("/");
 };
 
-export const logout = () => (dispatch, getState, { history, apolloClient }) => {
-  const wait = seconds =>
-    new Promise(resolve => setTimeout(resolve, seconds * 1000));
-  Promise.race([logoutAll(), wait(2)]).then(() => {
-    apolloClient.resetStore();
-    dispatch({ type: actions.LOGOUT });
-    history.push("/");
-  });
-};
-
-export const refreshUserLogin = () => (dispatch, getState, { history }) => {
-  history.push("/login");
-};
+export const logout = () => ({ type: actions.LOGOUT });
 
 // ============================================================================
 // User Reducer

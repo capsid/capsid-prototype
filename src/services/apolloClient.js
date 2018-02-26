@@ -8,15 +8,14 @@ import { onError } from "apollo-link-error";
 import urlJoin from "url-join";
 
 import { apiRoot } from "../common/injectGlobals";
-import { reduxStore } from ".";
-import { refreshUserLogin } from "../reducers/reduceUser";
+import { history } from ".";
 
 const error = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors)
     graphQLErrors.forEach(({ code, message }) => {
       switch (code) {
         case 403:
-          reduxStore.dispatch(refreshUserLogin());
+          history.push("/login");
           break;
         default:
           console.log(`[GraphQL error]: Code: ${code}, Message: ${message}`);
