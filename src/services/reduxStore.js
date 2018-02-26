@@ -5,7 +5,6 @@ import thunk from "redux-thunk";
 import finalReducer from "../reducers/reduce";
 import { history, apolloClient } from ".";
 
-console.log("here3", apolloClient);
 const finalCreateStore = compose(
   applyMiddleware(thunk.withExtraArgument({ history, apolloClient })),
   window.devToolsExtension ? window.devToolsExtension() : f => f
