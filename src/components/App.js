@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Switch, Redirect, Route } from "react-router-dom";
+import { Router, Switch, Redirect, Route } from "react-router-dom";
 import { connect } from "react-redux";
 
 import AuthRedirect from "./AuthRedirect";
@@ -13,6 +13,8 @@ import Genome from "./Genome";
 import Project from "./Project";
 import Sample from "./Sample";
 
+import history from "../services/history";
+
 const ProtectedRoute = connect(state => ({
   token: state.user.token
 }))(
@@ -21,7 +23,7 @@ const ProtectedRoute = connect(state => ({
 );
 
 const App = () => (
-  <BrowserRouter>
+  <Router history={history}>
     <div className="App">
       <Header />
       <div style={{ padding: 20 }}>
@@ -38,7 +40,7 @@ const App = () => (
         </Switch>
       </div>
     </div>
-  </BrowserRouter>
+  </Router>
 );
 
 export default App;

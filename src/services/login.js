@@ -6,9 +6,9 @@ import { egoAppId, egoApiRoot } from "../common/injectGlobals";
 const gapi = global.gapi;
 gapi.load("auth2");
 
-export const googleLogin = token =>
+export const getEgoJwt = ({ token, provider }) =>
   fetch(
-    withQuery(urlJoin(egoApiRoot, "oauth/google/token"), {
+    withQuery(urlJoin(egoApiRoot, `oauth/${provider}/token`), {
       client_id: egoAppId
     }),
     {
