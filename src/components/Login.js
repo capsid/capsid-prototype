@@ -1,11 +1,10 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { withRouter } from "react-router";
-import jwtDecode from "jwt-decode";
 
 import { allRedirectUris, googleAppId } from "../common/injectGlobals";
 import { login } from "../reducers/reduceUser";
-import { googleLogin } from "../services/login";
+import { getEgoJwt } from "../services/login";
+
 import RedirectLogin from "./RedirectLogin";
 
 const gapi = global.gapi;
@@ -15,26 +14,16 @@ class Login extends Component {
     securityError: false
   };
 
-  handleJWT = async jwt => {
-    const { dispatch, history } = this.props;
-    const decoded = jwtDecode(jwt);
-    await dispatch(
-      login({
-        token: jwt,
-        profile: decoded.context.user
-      })
-    );
-    history.push("/");
-  };
-
   handleGoogleToken = async token => {
-    const response = await googleLogin(token).catch(error => {
-      this.setState({ securityError: true });
-      console.error("google auth error", error.message);
-    });
+    const response = await getEgoJwt({ token, provider: "google" }).catch(
+      error => {
+        this.setState({ securityError: true });
+        console.error("ego error:", error);
+      }
+    );
     if (response && response.status === 200) {
       let jwt = await response.text();
-      this.handleJWT(jwt);
+      this.props.dispatch(login(jwt));
     } else {
       console.error("response error");
     }
@@ -85,4 +74,4 @@ class Login extends Component {
   }
 }
 
-export default connect()(withRouter(Login));
+export default connect()(Login);
