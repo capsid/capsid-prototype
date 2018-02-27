@@ -21,3 +21,9 @@ export { default as GenomesContainer } from "./GenomesContainer";
 export {
   default as GenomesAggregationContainer
 } from "./GenomesAggregationContainer";
+
+export { default as AccessAddContainer } from "./AccessAddContainer";
+export {
+  default as AccessesContainer,
+  AccessesQuery
+} from "./AccessesContainer";
