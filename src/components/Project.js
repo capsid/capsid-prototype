@@ -1,20 +1,23 @@
 import React from "react";
-import { compose } from "recompose";
 import { withRouter } from "react-router";
 
 import { ProjectContainer } from "./containers";
-
-const enhance = compose(withRouter);
+import ProjectAccesses from "./ProjectAccesses";
 
 const Project = ({ match: { params: { id } } }) => (
-  <ProjectContainer id={id}>
-    {({ data: { item } }) => (
-      <div>
-        <h4>Project:</h4>
-        <pre>{JSON.stringify(item, null, 2)}</pre>
-      </div>
-    )}
-  </ProjectContainer>
+  <div>
+    <ProjectContainer id={id}>
+      {({ data: { item } }) => (
+        <div>
+          <div>
+            <h4>Project:</h4>
+            <pre>{JSON.stringify(item, null, 2)}</pre>
+          </div>
+          <ProjectAccesses projectId={id} />
+        </div>
+      )}
+    </ProjectContainer>
+  </div>
 );
 
-export default enhance(Project);
+export default withRouter(Project);
