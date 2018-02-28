@@ -15,16 +15,22 @@ export const fragments = {
   `
 };
 
-export const AccessesQuery = gql`
-  query accessMany($filter: FilterFindManyAccessInput!) {
-    items: accessMany(filter: $filter) {
+const Query = gql`
+  query accessMany($projectId: MongoID!) {
+    items: accessMany(filter: { projectId: $projectId }) {
       ...AccessDetails
     }
   }
   ${fragments.details}
 `;
 
-export default graphql(AccessesQuery, {
+export const updateCache = ({ proxy, projectId, nextData }) => {
+  const cacheArgs = { query: Query, variables: { projectId } };
+  const data = proxy.readQuery(cacheArgs);
+  proxy.writeQuery({ ...cacheArgs, data: nextData({ data }) });
+};
+
+export default graphql(Query, {
   options: defaultOptions,
-  props: loadMore(AccessesQuery)
+  props: loadMore(Query)
 })(Container);

@@ -25,5 +25,6 @@ export {
 export { default as AccessAddContainer } from "./AccessAddContainer";
 export {
   default as AccessesContainer,
-  AccessesQuery
+  updateCache as accessesUpdateCache
 } from "./AccessesContainer";
+export { default as AccessRemoveContainer } from "./AccessRemoveContainer";

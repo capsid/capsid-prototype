@@ -1,20 +1,12 @@
 import React from "react";
 import { compose, withState } from "recompose";
-import _ from "lodash";
 
-import { AccessesQuery, AccessAddContainer } from "./containers";
+import { accessesUpdateCache, AccessAddContainer } from "./containers";
 
 const formToJson = form =>
   Object.values(form.elements)
     .filter(x => x.type !== "submit")
     .reduce((obj, x) => ({ ...obj, [x.name]: x.value }), {});
-
-const validateUser = ({ userEmail, access }) => {
-  let validation = {};
-  if (!access) validation.role = "Select a role";
-  if (!userEmail) validation.email = "Enter an email";
-  return validation;
-};
 
 const addUser = async ({
   event,
@@ -24,32 +16,33 @@ const addUser = async ({
   setValidation
 }) => {
   event.preventDefault();
+  setLoading(true);
   const form = event.target;
   const { userEmail, access } = formToJson(form);
-  const validation = validateUser({ userEmail, access });
-  setValidation(validation);
-  if (_.isEmpty(validation)) {
-    form.reset();
-    setLoading(true);
-    await mutate({
-      variables: { projectId, userEmail, access },
-      update: (proxy, { data: { item } }) => {
-        const cacheArgs = {
-          query: AccessesQuery,
-          variables: { filter: { projectId } }
-        };
-        const data = proxy.readQuery(cacheArgs);
-        data.items.push(item);
-        proxy.writeQuery({ ...cacheArgs, data });
-      }
-    }).catch(err => console.error(err));
-    setLoading(false);
-  }
+  await mutate({
+    variables: { projectId, userEmail, access },
+    update: (proxy, { data: { item } }) => {
+      accessesUpdateCache({
+        projectId,
+        proxy,
+        nextData: ({ data }) => ({ ...data, items: [...data.items, item] })
+      });
+    }
+  })
+    .then(() => {
+      form.reset();
+      setValidation([]);
+    })
+    .catch(({ graphQLErrors, networkError }) => {
+      setValidation(graphQLErrors.map(({ message }) => message));
+      networkError && console.error(networkError);
+    });
+  setLoading(false);
 };
 
 const enhance = compose(
   withState("loading", "setLoading", false),
-  withState("validation", "setValidation", {})
+  withState("validation", "setValidation", [])
 );
 
 const AccessAddForm = enhance(
@@ -61,7 +54,7 @@ const AccessAddForm = enhance(
             addUser({ event, mutate, projectId, setLoading, setValidation })
           }
         >
-          <ul>{Object.values(validation).map(x => <li key={x}>{x}</li>)}</ul>
+          <ul>{validation.map(x => <li key={x}>{x}</li>)}</ul>
           <div>
             <label>Role: </label>
             <select name="access">
