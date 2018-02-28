@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 
-const ProjectAdmin = ({ profile, projectId, children, access }) => {
+const Project = ({ profile, projectId, children, access }) => {
   const projectAccess = (
     profile.access.find(x => x.projectId === projectId) || {}
   ).access;
@@ -14,4 +14,4 @@ const ProjectAdmin = ({ profile, projectId, children, access }) => {
 
 export default connect(state => ({
   profile: state.user.profile
-}))(ProjectAdmin);
+}))(Project);
