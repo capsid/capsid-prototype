@@ -13,6 +13,7 @@ import Genome from "./Genome";
 import Project from "./Project";
 import Sample from "./Sample";
 
+import { LoggedIn } from "./access";
 import history from "../services/history";
 
 const ProtectedRoute = connect(state => ({
@@ -25,7 +26,9 @@ const ProtectedRoute = connect(state => ({
 const App = () => (
   <Router history={history}>
     <div className="App">
-      <Header />
+      <LoggedIn>
+        <Header />
+      </LoggedIn>
       <div style={{ padding: 20 }}>
         <Switch>
           <ProtectedRoute exact path="/" component={Home} />

@@ -40,12 +40,10 @@ const Header = ({ profile, location: { pathname } }) => (
           </NavLink>
         ))}
       </div>
-      {profile && (
-        <div style={{ marginLeft: "auto" }}>
-          {profile.email}
-          <LogoutButton />
-        </div>
-      )}
+      <div style={{ marginLeft: "auto" }}>
+        {profile.email}
+        <LogoutButton />
+      </div>
     </div>
   </header>
 );
