@@ -12,13 +12,13 @@ import { history } from ".";
 
 const error = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors)
-    graphQLErrors.forEach(({ code, message }) => {
-      switch (code) {
-        case 403:
+    graphQLErrors.forEach(({ message }) => {
+      switch (message) {
+        case "User not found": // TODO: use apollo extraInfo??
           history.push("/login");
           break;
         default:
-          console.log(`[GraphQL error]: Code: ${code}, Message: ${message}`);
+          console.log(`[GraphQL error]: Message: ${message}`);
           break;
       }
     });

@@ -1,4 +1,3 @@
-import jwtDecode from "jwt-decode";
 import u from "updeep";
 
 import { user as actions } from "../actions";
@@ -33,13 +32,10 @@ const setUserLocalStorage = ({ token, profile }) => {
 // User Action Creators
 // ============================================================================
 
-export const login = token => dispatch => {
-  const decoded = jwtDecode(token);
-  dispatch({
-    type: actions.LOGIN,
-    payload: { token, profile: decoded.context.user }
-  });
-};
+export const login = ({ token, ...profile }) => ({
+  type: actions.LOGIN,
+  payload: { token, profile }
+});
 
 export const logout = () => ({ type: actions.LOGOUT });
 

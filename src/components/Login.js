@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { withApollo } from "react-apollo";
+import { withRouter } from "react-router";
 
 import { allRedirectUris, googleAppId } from "../common/injectGlobals";
+import { Login as LoginQuery } from "./queries";
+import { logoutAll } from "../services/login";
 import { login } from "../reducers/reduceUser";
-import { getEgoJwt } from "../services/login";
 
 import RedirectLogin from "./RedirectLogin";
 
@@ -11,23 +14,29 @@ const gapi = global.gapi;
 
 class Login extends Component {
   state = {
-    securityError: false
+    validation: [],
+    networkError: false
   };
 
-  handleGoogleToken = async token => {
-    const response = await getEgoJwt({ token, provider: "google" }).catch(
-      error => {
-        this.setState({ securityError: true });
-        console.error("ego error:", error);
-      }
-    );
-    if (response && response.status === 200) {
-      let jwt = await response.text();
-      this.props.dispatch(login(jwt));
-      this.props.history.push("/");
-    } else {
-      console.error("response error");
-    }
+  login = async ({ token, provider }) => {
+    const { client, dispatch, history } = this.props;
+    client
+      .query({
+        query: LoginQuery,
+        variables: { token, provider }
+      })
+      .then(({ data: { item } }) => {
+        dispatch(login(item));
+        history.push("/");
+      })
+      .catch(async ({ graphQLErrors, networkError }) => {
+        await logoutAll();
+        this.setState({
+          validation: graphQLErrors.map(({ message }) => message),
+          networkError: !!networkError
+        });
+        networkError && console.error(networkError);
+      });
   };
 
   componentDidMount() {
@@ -43,8 +52,8 @@ class Login extends Component {
           longtitle: true,
           theme: "light",
           onsuccess: googleUser => {
-            const { id_token } = googleUser.getAuthResponse();
-            this.handleGoogleToken(id_token);
+            const { id_token: token } = googleUser.getAuthResponse();
+            this.login({ token, provider: "google" });
           },
           onfailure: error => console.error("login fail", error)
         });
@@ -56,23 +65,26 @@ class Login extends Component {
 
   render() {
     let { shouldNotRedirect } = this.props;
-    let { securityError } = this.state;
+    let { validation, networkError } = this.state;
     const renderSocialLoginButtons =
       shouldNotRedirect || allRedirectUris.includes(window.location.origin);
 
     return (
       <div className="Login">
-        <h1>Login Here!</h1>
-        {securityError ? (
-          <div>Connection to ego failed</div>
+        <h1>Capsid Login</h1>
+        {networkError ? (
+          <div>Connection to Capsid API failed</div>
         ) : renderSocialLoginButtons ? (
-          [<div key="google" id="googleSignin" />]
+          <div>
+            {validation.map(x => <div key={x}>{x}</div>)}
+            <div key="google" id="googleSignin" />
+          </div>
         ) : (
-          <RedirectLogin onLogin={({ token }) => this.handleJWT(token)} />
+          <RedirectLogin onLogin={this.login} />
         )}
       </div>
     );
   }
 }
 
-export default connect()(Login);
+export default connect()(withApollo(withRouter(Login)));

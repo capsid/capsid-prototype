@@ -1,5 +1,6 @@
 import React from "react";
 
+import { Project as ProjectAccess } from "./access";
 import {
   accessesUpdateCache,
   AccessesContainer,
@@ -26,7 +27,9 @@ const removeUserAccess = async ({ userEmail, projectId, mutate }) => {
 const ProjectAccesses = ({ projectId }) => (
   <div>
     <h4>Users:</h4>
-    <AccessAddForm projectId={projectId} />
+    <ProjectAccess projectId={projectId} access="admin">
+      <AccessAddForm projectId={projectId} />
+    </ProjectAccess>
     <AccessesContainer first={1000} projectId={projectId}>
       {({ data: { items, loading } }) => (
         <div style={{ marginTop: 20 }}>
