@@ -1,8 +1,8 @@
 import React from "react";
 import { withRouter } from "react-router";
 
-import { ProjectContainer } from "./containers";
-import ProjectAccesses from "./ProjectAccesses";
+import { ProjectContainer } from "@capsid/components/containers";
+import ProjectAccesses from "@capsid/components/ProjectAccesses";
 
 const Project = ({ match: { params: { id } } }) => (
   <div>

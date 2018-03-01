@@ -1,6 +1,6 @@
 import u from "updeep";
 
-import { user as actions } from "../actions";
+import { user as actions } from "@capsid/actions";
 
 // ============================================================================
 // User Helpers

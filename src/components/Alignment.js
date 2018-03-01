@@ -2,7 +2,7 @@ import React from "react";
 import { compose } from "recompose";
 import { withRouter } from "react-router";
 
-import { AlignmentContainer } from "./containers";
+import { AlignmentContainer } from "@capsid/components/containers";
 
 const enhance = compose(withRouter);
 

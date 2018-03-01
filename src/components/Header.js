@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router";
 import { NavLink } from "react-router-dom";
 
-import LogoutButton from "./LogoutButton";
+import LogoutButton from "@capsid/components/LogoutButton";
 
 const rootPath = x => x.split("/").filter(Boolean)[0];
 

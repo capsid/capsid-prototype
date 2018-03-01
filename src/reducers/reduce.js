@@ -1,6 +1,6 @@
 import { combineReducers } from "redux";
 
-import reduceUser from "./reduceUser";
+import reduceUser from "@capsid/reducers/reduceUser";
 
 let reducers = {
   user: reduceUser

@@ -1,12 +1,12 @@
 import React from "react";
 
-import { Project as ProjectAccess } from "./access";
+import { Project as ProjectAccess } from "@capsid/components/access";
 import {
   accessesUpdateCache,
   AccessesContainer,
   AccessRemoveContainer
-} from "./containers";
-import AccessAddForm from "./AccessAddForm";
+} from "@capsid/components/containers";
+import AccessAddForm from "@capsid/components/AccessAddForm";
 
 const removeUserAccess = async ({ userEmail, projectId, mutate }) => {
   await mutate({

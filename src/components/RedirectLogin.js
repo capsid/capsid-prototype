@@ -3,7 +3,7 @@ import queryString from "query-string";
 import urlJoin from "url-join";
 import popBack from "popback";
 
-import { defaultRedirectUri } from "../common/injectGlobals";
+import { defaultRedirectUri } from "@capsid/common/injectGlobals";
 
 export default ({ onLogin, ...props }) => {
   return (

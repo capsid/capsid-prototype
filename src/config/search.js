@@ -7,7 +7,7 @@ import {
   AlignmentsAggregationContainer,
   GenomesContainer,
   GenomesAggregationContainer
-} from "../components/containers";
+} from "@capsid/components/containers";
 
 const linkArgs = ({ to, row: { _original }, value, accessor = "id" }) => ({
   to: `/${to}/${_original[accessor]}`,

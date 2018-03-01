@@ -2,7 +2,7 @@ import { compose } from "recompose";
 import { createStore, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
 
-import finalReducer from "../reducers/reduce";
+import finalReducer from "@capsid/reducers/reduce";
 
 const finalCreateStore = compose(
   applyMiddleware(thunk),

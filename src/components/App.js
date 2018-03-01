@@ -2,19 +2,18 @@ import React from "react";
 import { Router, Switch, Redirect, Route } from "react-router-dom";
 import { connect } from "react-redux";
 
-import AuthRedirect from "./AuthRedirect";
-import Header from "./Header";
-import Home from "./Home";
-import Login from "./Login";
-import Search from "./Search";
+import AuthRedirect from "@capsid/components/AuthRedirect";
+import Header from "@capsid/components/Header";
+import Home from "@capsid/components/Home";
+import Login from "@capsid/components/Login";
+import Search from "@capsid/components/Search";
+import Alignment from "@capsid/components/Alignment";
+import Genome from "@capsid/components/Genome";
+import Project from "@capsid/components/Project";
+import Sample from "@capsid/components/Sample";
+import { LoggedIn } from "@capsid/components/access";
 
-import Alignment from "./Alignment";
-import Genome from "./Genome";
-import Project from "./Project";
-import Sample from "./Sample";
-
-import { LoggedIn } from "./access";
-import history from "../services/history";
+import history from "@capsid/services/history";
 
 const ProtectedRoute = connect(state => ({
   token: state.user.token

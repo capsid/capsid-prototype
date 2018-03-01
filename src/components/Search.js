@@ -10,9 +10,9 @@ import TextFilter from "@arranger/components/dist/TextFilter";
 import CurrentSQON from "@arranger/components/dist/Arranger/CurrentSQON";
 import "@arranger/components/public/themeStyles/beagle/beagle.css";
 
-import AggPanel from "./AggPanel";
-import Table from "./Table";
-import searchConfig from "../config/search";
+import AggPanel from "@capsid/components/AggPanel";
+import Table from "@capsid/components/Table";
+import searchConfig from "@capsid/config/search";
 
 import {
   mapNodes,
@@ -20,7 +20,7 @@ import {
   withParams,
   withSQON,
   withUpdateSQON
-} from "../utils";
+} from "@capsid/utils";
 
 const enhance = compose(
   withRouter,

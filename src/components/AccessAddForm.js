@@ -1,7 +1,10 @@
 import React from "react";
 import { compose, withState } from "recompose";
 
-import { accessesUpdateCache, AccessAddContainer } from "./containers";
+import {
+  accessesUpdateCache,
+  AccessAddContainer
+} from "@capsid/components/containers";
 
 const formToJson = form =>
   Object.values(form.elements)

@@ -3,8 +3,8 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router";
 import { withApollo } from "react-apollo";
 
-import { logout } from "../reducers/reduceUser";
-import { logoutAll } from "../services/login";
+import { logout } from "@capsid/reducers/reduceUser";
+import { logoutAll } from "@capsid/services/login";
 
 const Logout = ({ dispatch, client, history }) => (
   <button

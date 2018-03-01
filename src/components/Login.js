@@ -3,12 +3,12 @@ import { connect } from "react-redux";
 import { withApollo } from "react-apollo";
 import { withRouter } from "react-router";
 
-import { allRedirectUris, googleAppId } from "../common/injectGlobals";
-import { Login as LoginQuery } from "./queries";
-import { logoutAll } from "../services/login";
-import { login } from "../reducers/reduceUser";
+import { allRedirectUris, googleAppId } from "@capsid/common/injectGlobals";
+import { logoutAll } from "@capsid/services/login";
+import { login } from "@capsid/reducers/reduceUser";
 
-import RedirectLogin from "./RedirectLogin";
+import RedirectLogin from "@capsid/components/RedirectLogin";
+import { Login as LoginQuery } from "@capsid/components/queries";
 
 const gapi = global.gapi;
 

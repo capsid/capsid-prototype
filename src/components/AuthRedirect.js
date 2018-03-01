@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import queryString from "querystring";
 import urlJoin from "url-join";
 
-import Login from "./Login";
+import Login from "@capsid/components/Login";
 
 const AuthRedirect = props => {
   const { token, location: { search } } = props;

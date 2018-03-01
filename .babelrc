@@ -1,3 +1,20 @@
 {
-    "presets": ["react-app"]
+  "presets": ["react-app"],
+  "plugins": [
+    [
+      "babel-plugin-module-resolver",
+      {
+        "root": ["./"],
+        "alias": {
+          "@capsid/actions": "./src/actions",
+          "@capsid/common": "./src/common",
+          "@capsid/components": "./src/components",
+          "@capsid/config": "./src/config",
+          "@capsid/reducers": "./src/reducers",
+          "@capsid/services": "./src/services",
+          "@capsid/utils": "./src/utils"
+        }
+      }
+    ]
+  ]
 }

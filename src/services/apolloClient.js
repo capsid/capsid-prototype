@@ -7,8 +7,8 @@ import { InMemoryCache } from "apollo-cache-inmemory";
 import { onError } from "apollo-link-error";
 import urlJoin from "url-join";
 
-import { apiRoot } from "../common/injectGlobals";
-import { history } from ".";
+import { apiRoot } from "@capsid/common/injectGlobals";
+import { history } from "@capsid/services";
 
 const error = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors)
