@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { withApollo } from "react-apollo";
 import { withRouter } from "react-router";
 
-import { allRedirectUris, googleAppId } from "@capsid/common/injectGlobals";
+import { allRedirectUris } from "@capsid/common/injectGlobals";
 import { logoutAll } from "@capsid/services/login";
 import { login } from "@capsid/reducers/reduceUser";
 
@@ -41,22 +41,17 @@ class Login extends Component {
 
   componentDidMount() {
     try {
-      gapi.load("auth2", () => {
-        gapi.auth2.init({
-          client_id: googleAppId
-        });
-        gapi.signin2.render("googleSignin", {
-          scope: "profile email",
-          width: 240,
-          height: 40,
-          longtitle: true,
-          theme: "light",
-          onsuccess: googleUser => {
-            const { id_token: token } = googleUser.getAuthResponse();
-            this.login({ token, provider: "google" });
-          },
-          onfailure: error => console.error("login fail", error)
-        });
+      gapi.signin2.render("googleSignin", {
+        scope: "profile email",
+        width: 240,
+        height: 40,
+        longtitle: true,
+        theme: "light",
+        onsuccess: googleUser => {
+          const { id_token: token } = googleUser.getAuthResponse();
+          this.login({ token, provider: "google" });
+        },
+        onfailure: error => console.error("login fail", error)
       });
     } catch (e) {
       console.error(e);
