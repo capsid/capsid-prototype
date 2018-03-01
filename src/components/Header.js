@@ -3,10 +3,9 @@ import { compose } from "recompose";
 import { connect } from "react-redux";
 import { withRouter } from "react-router";
 import { NavLink } from "react-router-dom";
+import styled from "react-emotion";
 
 import LogoutButton from "@capsid/components/LogoutButton";
-
-const rootPath = x => x.split("/").filter(Boolean)[0];
 
 const enhance = compose(
   withRouter,
@@ -15,37 +14,44 @@ const enhance = compose(
   }))
 );
 
+const HeaderContainer = styled("header")`
+  display: flex;
+  flexdirection: row;
+  alignitems: flex-start;
+  justifycontent: flex-start;
+  padding: 20px;
+`;
+
+const ActiveStyleNavLink = props => (
+  <NavLink activeStyle={{ color: "red" }} {...props} />
+);
+
+const HeaderNavLink = styled(ActiveStyleNavLink)`
+  margin-left: 20px;
+`;
+
+const HeaderRight = styled("div")`
+  margin-left: auto;
+`;
+
+const rootPath = x => x.split("/").filter(Boolean)[0];
+const isActive = x => (m, l) => rootPath(l.pathname) === x;
+
 const Header = ({ profile, location: { pathname } }) => (
-  <header>
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "flex-start",
-        justifyContent: "flex-start",
-        padding: 20
-      }}
-    >
+  <div>
+    <HeaderContainer>
       <div>
         <NavLink to="/">Capsid 2.0</NavLink>
-        {[["Search", "/search/projects"]].map(([label, to]) => (
-          <NavLink
-            key={label}
-            isActive={(m, l) => rootPath(l.pathname) === rootPath(to)}
-            activeStyle={{ color: "red" }}
-            style={{ marginLeft: 20 }}
-            to={to}
-          >
-            {label}
-          </NavLink>
-        ))}
+        <HeaderNavLink isActive={isActive("search")} to="/search/projects">
+          Search
+        </HeaderNavLink>
       </div>
-      <div style={{ marginLeft: "auto" }}>
+      <HeaderRight>
         {profile.email}
         <LogoutButton />
-      </div>
-    </div>
-  </header>
+      </HeaderRight>
+    </HeaderContainer>
+  </div>
 );
 
 export default enhance(Header);

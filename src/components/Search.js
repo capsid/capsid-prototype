@@ -4,6 +4,7 @@ import { withRouter, Link, NavLink } from "react-router-dom";
 import _ from "lodash";
 import humanize from "string-humanize";
 import queryString from "query-string";
+import styled from "react-emotion";
 
 import { currentFilterValue } from "@arranger/components/dist/SQONView/utils";
 import TextFilter from "@arranger/components/dist/TextFilter";
@@ -34,6 +35,38 @@ const configWithLink = searchConfig({
   CellLink: ({ to, value }) => <Link to={to}>{value}</Link>
 });
 
+const Flex = styled("div")`
+  display: flex;
+`;
+
+const LeftSidebar = styled("div")`
+  width: 300px;
+`;
+
+const MainPanel = styled("div")`
+  flex-grow: 1;
+`;
+
+const Tabs = styled("div")`
+  padding: 10px;
+`;
+
+const ActiveStyleNavLink = props => (
+  <NavLink activeStyle={{ color: "red" }} {...props} />
+);
+
+const TabLink = styled(ActiveStyleNavLink)`
+  margin-left: 10px;
+`;
+
+const LeftButton = styled("button")`
+  margin-right: auto;
+`;
+
+const RightButton = styled("button")`
+  margin-left: auto;
+`;
+
 const Search = ({
   match: { params: { tab } },
   esQuery,
@@ -47,31 +80,29 @@ const Search = ({
   if (!config) return null;
   const sort = params.sort ? _.flatten([params.sort]) : config.defaultSort;
   return (
-    <div style={{ display: "flex" }}>
-      <div style={{ width: 300 }}>
+    <Flex>
+      <LeftSidebar>
         <config.AggContainer config={config.aggs}>
           {aggs => <AggPanel {...aggs} sqon={sqon} updateSQON={updateSQON} />}
         </config.AggContainer>
-      </div>
-      <div style={{ flexGrow: 1 }}>
-        <div style={{ padding: 10 }}>
+      </LeftSidebar>
+      <MainPanel>
+        <Tabs>
           {Object.keys(configWithLink)
             .map(key => ({ key, pathname: `/search/${key}` }))
             .map(({ key, pathname }) => (
-              <NavLink
+              <TabLink
                 key={key}
                 isActive={() => tab === key}
-                activeStyle={{ color: "red" }}
-                style={{ marginLeft: 10 }}
                 to={{
                   pathname,
                   search: pathname === location.pathname ? location.search : ""
                 }}
               >
                 {humanize(key)}
-              </NavLink>
+              </TabLink>
             ))}
-        </div>
+        </Tabs>
         <CurrentSQON sqon={sqon} setSQON={updateSQON} />
         <TextFilter
           value={currentFilterValue(sqon)}
@@ -104,24 +135,17 @@ const Search = ({
                 }
                 sort={sort}
               />
-              <div style={{ display: "flex" }}>
-                <button
-                  style={{ marginRight: "auto" }}
-                  onClick={() => refetch()}
-                >
-                  First Page
-                </button>
+              <Flex>
+                <LeftButton onClick={() => refetch()}>First Page</LeftButton>
                 {hasNextPage && (
-                  <button style={{ marginLeft: "auto" }} onClick={loadMore}>
-                    Next Page
-                  </button>
+                  <RightButton onClick={loadMore}>Next Page</RightButton>
                 )}
-              </div>
+              </Flex>
             </div>
           )}
         </config.Container>
-      </div>
-    </div>
+      </MainPanel>
+    </Flex>
   );
 };
 

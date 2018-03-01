@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "react-emotion";
 
 import { Project as ProjectAccess } from "@capsid/components/access";
 import {
@@ -24,6 +25,10 @@ const removeUserAccess = async ({ userEmail, projectId, mutate }) => {
   }).catch(err => console.error(err));
 };
 
+const AccessesContent = styled("div")`
+  margin-top: 20px;
+`;
+
 const ProjectAccesses = ({ projectId }) => (
   <div>
     <h4>Users:</h4>
@@ -32,7 +37,7 @@ const ProjectAccesses = ({ projectId }) => (
     </ProjectAccess>
     <AccessesContainer first={1000} projectId={projectId}>
       {({ data: { items, loading } }) => (
-        <div style={{ marginTop: 20 }}>
+        <AccessesContent>
           {loading && `...`}
           {!loading && (
             <AccessRemoveContainer>
@@ -54,7 +59,7 @@ const ProjectAccesses = ({ projectId }) => (
               )}
             </AccessRemoveContainer>
           )}
-        </div>
+        </AccessesContent>
       )}
     </AccessesContainer>
   </div>

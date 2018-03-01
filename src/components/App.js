@@ -1,6 +1,8 @@
 import React from "react";
 import { Router, Switch, Redirect, Route } from "react-router-dom";
 import { connect } from "react-redux";
+import styled from "react-emotion";
+import { withRouter } from "react-router";
 
 import AuthRedirect from "@capsid/components/AuthRedirect";
 import Header from "@capsid/components/Header";
@@ -22,26 +24,36 @@ const ProtectedRoute = connect(state => ({
     token ? <Route {...props} /> : <Redirect to="/login" />
 );
 
+const Content = styled("div")`
+  padding: 20px;
+`;
+
+// AppWithRouter required to enable children to re-render on location change
+// https://github.com/ReactTraining/react-router/issues/4671
+const AppWithRouter = withRouter(() => (
+  <div>
+    <LoggedIn>
+      <Header />
+    </LoggedIn>
+    <Content>
+      <Switch>
+        <ProtectedRoute exact path="/" component={Home} />
+        <ProtectedRoute exact path="/search/:tab" component={Search} />
+        <ProtectedRoute exact path="/projects/:id" component={Project} />
+        <ProtectedRoute exact path="/samples/:id" component={Sample} />
+        <ProtectedRoute exact path="/alignments/:id" component={Alignment} />
+        <ProtectedRoute exact path="/genome/:id" component={Genome} />
+        <Route exact path="/login" component={Login} />
+        <Route exact path="/auth-redirect" component={AuthRedirect} />
+        <Route exact path="/redirected" component={() => null} />
+      </Switch>
+    </Content>
+  </div>
+));
+
 const App = () => (
   <Router history={history}>
-    <div className="App">
-      <LoggedIn>
-        <Header />
-      </LoggedIn>
-      <div style={{ padding: 20 }}>
-        <Switch>
-          <ProtectedRoute exact path="/" component={Home} />
-          <ProtectedRoute exact path="/search/:tab" component={Search} />
-          <ProtectedRoute exact path="/projects/:id" component={Project} />
-          <ProtectedRoute exact path="/samples/:id" component={Sample} />
-          <ProtectedRoute exact path="/alignments/:id" component={Alignment} />
-          <ProtectedRoute exact path="/genome/:id" component={Genome} />
-          <Route exact path="/login" component={Login} />
-          <Route exact path="/auth-redirect" component={AuthRedirect} />
-          <Route exact path="/redirected" component={() => null} />
-        </Switch>
-      </div>
-    </div>
+    <AppWithRouter />
   </Router>
 );
 
