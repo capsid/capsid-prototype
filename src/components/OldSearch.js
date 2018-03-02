@@ -67,7 +67,7 @@ const RightButton = styled("button")`
   margin-left: auto;
 `;
 
-const Search = ({
+const OldSearch = ({
   match: { params: { tab } },
   esQuery,
   location,
@@ -89,7 +89,7 @@ const Search = ({
       <MainPanel>
         <Tabs>
           {Object.keys(configWithLink)
-            .map(key => ({ key, pathname: `/search/${key}` }))
+            .map(key => ({ key, pathname: `/oldsearch/${key}` }))
             .map(({ key, pathname }) => (
               <TabLink
                 key={key}
@@ -149,4 +149,4 @@ const Search = ({
   );
 };
 
-export default enhance(Search);
+export default enhance(OldSearch);
