@@ -73,61 +73,7 @@ const AggPanel = ({ config, search, loading, sqon, updateSQON }) => (
               }
             />
           )
-      )
-    //         .map(({ field, type }) => (
-    //           <pre key={field}>
-    //             {type}
-    //             {JSON.stringify(aggs[field], null, 2)}
-    //           </pre>
-    //         ))
-    //     )
-    // )}
-    /* {!loading &&
-      Object.keys(config)
-        .map(k => ({ ...config[k], namespace: k }))
-        .map(x => ({ ...x, data: aggs[x.field] }))
-        .map(
-          ({ field, type }) =>
-            type === "term" ? (
-              <TermAgg
-                {...agg}
-                buckets={agg.data.buckets || []}
-                handleValueClick={({ generateNextSQON }) =>
-                  updateSQON(generateNextSQON(sqon))
-                }
-                isActive={d =>
-                  inCurrentSQON({
-                    value: d.value,
-                    dotField: d.field,
-                    currentSQON: sqon
-                  })
-                }
-              />
-            ) : (
-              <RangeAgg
-                {...agg}
-                stats={agg.data}
-                value={{
-                  min:
-                    currentFieldValue({
-                      sqon,
-                      dotField: agg.field,
-                      op: ">="
-                    }) || agg.data.min,
-                  max:
-                    currentFieldValue({
-                      sqon,
-                      dotField: agg.field,
-                      op: "<="
-                    }) || agg.data.max
-                }}
-                handleChange={({ generateNextSQON }) =>
-                  updateSQON(generateNextSQON(sqon))
-                }
-              />
-            )
-        )} */
-    }
+      )}
   </div>
 );
 
