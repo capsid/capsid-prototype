@@ -1,152 +1,194 @@
 import React from "react";
-import { compose } from "recompose";
-import { withRouter, Link, NavLink } from "react-router-dom";
-import _ from "lodash";
-import humanize from "string-humanize";
+import rison from "rison";
+import { compose, withPropsOnChange, withState } from "recompose";
+import { withRouter } from "react-router";
 import queryString from "query-string";
-import styled from "react-emotion";
+import { Flex, Box } from "grid-styled";
+import { Link, NavLink } from "react-router-dom";
+import _, { debounce } from "lodash";
+import urlJoin from "url-join";
+import capitalize from "capitalize";
 
-import { currentFilterValue } from "@arranger/components/dist/SQONView/utils";
-import TextFilter from "@arranger/components/dist/TextFilter";
 import CurrentSQON from "@arranger/components/dist/Arranger/CurrentSQON";
-import "@arranger/components/public/themeStyles/beagle/beagle.css";
+import {
+  currentFilterValue,
+  replaceFilterSQON
+} from "@arranger/components/dist/SQONView/utils";
+import "@arranger/components/public/themeStyles/beagle/beagle.css"; // TODO
+
+import withParams from "@capsid/utils/withParams";
 
 import AggPanel from "@capsid/components/AggPanel";
-import Table from "@capsid/components/Table";
-import searchConfig from "@capsid/config/search";
 
-import {
-  mapNodes,
-  withEsQuery,
-  withParams,
-  withSQON,
-  withUpdateSQON
-} from "@capsid/utils";
+import ProjectsTab from "@capsid/components/ProjectsTab";
+import SamplesTab from "@capsid/components/SamplesTab";
+import AlignmentsTab from "@capsid/components/AlignmentsTab";
+import GenomesTab from "@capsid/components/GenomesTab";
+
+import SearchProjectContainer from "@capsid/components/containers/SearchProjectContainer";
+import SearchSampleContainer from "@capsid/components/containers/SearchSampleContainer";
+import SearchAlignmentContainer from "@capsid/components/containers/SearchAlignmentContainer";
+import SearchGenomeContainer from "@capsid/components/containers/SearchGenomeContainer";
+
+const containers = {
+  projects: SearchProjectContainer,
+  samples: SearchSampleContainer,
+  alignments: SearchAlignmentContainer,
+  genomes: SearchGenomeContainer
+};
+
+const tabs = {
+  projects: ProjectsTab,
+  samples: SamplesTab,
+  alignments: AlignmentsTab,
+  genomes: GenomesTab
+};
+
+const defaultSort = {
+  projects: ["name__asc"],
+  samples: ["name__asc"],
+  alignments: ["name__asc"],
+  genomes: ["name__asc"]
+};
+
+const aggConfig = {
+  projects: [{ displayName: "Project Label", field: "label", type: "terms" }],
+  samples: [{ displayName: "Sample Version", field: "version", type: "stats" }],
+  genomes: [
+    { displayName: "Genome Accession", field: "accession", type: "terms" },
+    { displayName: "Genome Length", field: "length", type: "stats" }
+  ]
+};
+
+const defaultSQON = { op: "and", content: [] };
+
+const updateParams = ({ history, params, update }) =>
+  history.push({ search: queryString.stringify({ ...params, ...update }) });
+
+const { decode, encode } = rison;
+
+const CellLink = ({ args: { row, value }, to, accessor = "id" }) => (
+  <Link to={`/${to}/${row._original[accessor]}`}>{value}</Link>
+);
+
+const TabLink = ({ tab, to, sqon, data, ...props }) => {
+  return (
+    <NavLink
+      isActive={() => to === tab}
+      activeStyle={{ color: "red" }}
+      to={{
+        pathname: urlJoin("/search", to),
+        search: queryString.stringify({
+          sqon: sqon ? encode(replaceFilterSQON({}, sqon)) : null
+        })
+      }}
+      {...props}
+    >
+      {capitalize(to)} ({(data[to] || {}).total})
+    </NavLink>
+  );
+};
 
 const enhance = compose(
   withRouter,
   withParams,
-  withSQON,
-  withUpdateSQON,
-  withEsQuery
+  withPropsOnChange(["params"], ({ params, history }) => {
+    const updateSQON = nextSQON =>
+      updateParams({
+        history,
+        params,
+        update: { sqon: encode(nextSQON) }
+      });
+    return {
+      sqon: params.sqon ? decode(params.sqon) : defaultSQON,
+      updateSQON,
+      debouncedUpdateSQON: debounce(updateSQON, 500)
+    };
+  }),
+  withState(
+    "filter",
+    "setFilter",
+    ({ sqon }) => (sqon ? currentFilterValue(sqon) : "")
+  )
 );
-
-const configWithLink = searchConfig({
-  CellLink: ({ to, value }) => <Link to={to}>{value}</Link>
-});
-
-const Flex = styled("div")`
-  display: flex;
-`;
-
-const LeftSidebar = styled("div")`
-  width: 300px;
-`;
-
-const MainPanel = styled("div")`
-  flex-grow: 1;
-`;
-
-const Tabs = styled("div")`
-  padding: 10px;
-`;
-
-const ActiveStyleNavLink = props => (
-  <NavLink activeStyle={{ color: "red" }} {...props} />
-);
-
-const TabLink = styled(ActiveStyleNavLink)`
-  margin-left: 10px;
-`;
-
-const LeftButton = styled("button")`
-  margin-right: auto;
-`;
-
-const RightButton = styled("button")`
-  margin-left: auto;
-`;
 
 const Search = ({
   match: { params: { tab } },
-  esQuery,
-  location,
-  history,
   params,
+  history,
   sqon,
-  updateSQON
-}) => {
-  const config = configWithLink[tab];
-  if (!config) return null;
-  const sort = params.sort ? _.flatten([params.sort]) : config.defaultSort;
-  return (
-    <Flex>
-      <LeftSidebar>
-        <config.AggContainer config={config.aggs}>
-          {aggs => <AggPanel {...aggs} sqon={sqon} updateSQON={updateSQON} />}
-        </config.AggContainer>
-      </LeftSidebar>
-      <MainPanel>
-        <Tabs>
-          {Object.keys(configWithLink)
-            .map(key => ({ key, pathname: `/search/${key}` }))
-            .map(({ key, pathname }) => (
+  updateSQON,
+  debouncedUpdateSQON,
+  filter,
+  setFilter,
+  Tab = tabs[tab],
+  Container = containers[tab],
+  sort = params.sort ? _.flatten([params.sort]) : defaultSort[tab]
+}) => (
+  <Container
+    query={JSON.stringify(sqon)}
+    aggs={JSON.stringify(aggConfig)}
+    size={20}
+    tab={tab}
+    sort={sort}
+  >
+    {({ data: { search, loading, refetch }, loadMore }) => (
+      <Flex>
+        <Box width={[1 / 2, 1 / 4, 1 / 6]}>
+          <AggPanel
+            loading={loading}
+            search={search}
+            config={aggConfig}
+            sqon={sqon}
+            updateSQON={debouncedUpdateSQON}
+          />
+        </Box>
+        <Box width={[1 / 2, 3 / 4, 5 / 6]}>
+          <Box>
+            {["projects", "samples", "alignments", "genomes"].map(x => (
               <TabLink
-                key={key}
-                isActive={() => tab === key}
-                to={{
-                  pathname,
-                  search: pathname === location.pathname ? location.search : ""
-                }}
-              >
-                {humanize(key)}
-              </TabLink>
-            ))}
-        </Tabs>
-        <CurrentSQON sqon={sqon} setSQON={updateSQON} />
-        <TextFilter
-          value={currentFilterValue(sqon)}
-          onChange={({ generateNextSQON }) => {
-            updateSQON(
-              generateNextSQON({
-                sqon,
-                fields: config.filterColumns.map(x => `${x}.search`)
-              })
-            );
-          }}
-        />
-        <config.Container first={20} sort={sort} query={esQuery}>
-          {({
-            data: {
-              items: { nodes, count, pageInfo: { hasNextPage } },
-              loading,
-              refetch
-            },
-            loadMore
-          }) => (
-            <div>
-              <Table
-                data={mapNodes(nodes)}
-                columns={config.columns}
-                updateSort={({ sort }) =>
-                  history.push({
-                    search: queryString.stringify({ ...params, sort })
-                  })
-                }
-                sort={sort}
+                key={x}
+                to={x}
+                tab={tab}
+                sqon={sqon}
+                data={search}
+                onClick={() => setFilter("")}
               />
-              <Flex>
-                <LeftButton onClick={() => refetch()}>First Page</LeftButton>
-                {hasNextPage && (
-                  <RightButton onClick={loadMore}>Next Page</RightButton>
-                )}
-              </Flex>
-            </div>
-          )}
-        </config.Container>
-      </MainPanel>
-    </Flex>
-  );
-};
+            ))}
+          </Box>
+          <CurrentSQON
+            sqon={sqon}
+            setSQON={nextSQON => {
+              setFilter(currentFilterValue(nextSQON));
+              updateSQON(nextSQON);
+            }}
+          />
+          <Box>
+            <Tab
+              hits={search[tab].hits}
+              sort={sort}
+              filter={filter}
+              updateFilter={({ value, generateNextSQON, filterColumns }) => {
+                setFilter(value);
+                debouncedUpdateSQON(
+                  generateNextSQON({
+                    sqon,
+                    fields: filterColumns.map(x => `${tab}.${x}.search`)
+                  })
+                );
+              }}
+              updateSort={({ sort }) =>
+                updateParams({ history, params, update: { sort } })
+              }
+              CellLink={CellLink}
+            />
+            <button onClick={() => refetch()}>First Page</button>
+            <button onClick={() => loadMore(tab)}>Next Page</button>
+          </Box>
+        </Box>
+      </Flex>
+    )}
+  </Container>
+);
 
 export default enhance(Search);
