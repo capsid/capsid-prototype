@@ -1,42 +1,44 @@
 const defaults = n => ({
-  items: {
-    count: 0,
-    pageInfo: {},
-    nodes: [...Array(n)].map(() => ({}))
-  }
+  search: ["alignments", "genomes", "projects", "samples"].reduce(
+    (obj, x) => ({
+      ...obj,
+      [x]: {
+        hits: [...Array(n)].map(() => ({}))
+      }
+    }),
+    {}
+  )
 });
 
 export const loadMore = Query => ({ data }) => ({
-  data: data.items ? data : { ...data, ...defaults(data.variables.first) },
-  loadMore: () =>
+  data: data.search ? data : { ...data, ...defaults(data.variables.size) },
+  loadMore: tab => {
     data.fetchMore({
       query: Query,
       variables: {
         ...(data.variables || {}),
-        cursor: ((data.items || {}).pageInfo || {}).endCursor
+        after: data.search[tab].endCursor
       },
       updateQuery: (previousResult, { fetchMoreResult }) => {
-        const count = fetchMoreResult.items.count;
-        const moreNodes = fetchMoreResult.items.nodes;
-        const pageInfo = fetchMoreResult.items.pageInfo;
-
+        const { hits, endCursor } = fetchMoreResult.search[tab];
         return {
-          items: {
-            __typename: previousResult.items.__typename,
-            count,
-            pageInfo,
-            nodes: moreNodes
+          search: {
+            ...previousResult.search,
+            [tab]: {
+              ...previousResult.search[tab],
+              hits,
+              endCursor
+            }
           }
         };
       }
-    })
+    });
+  }
 });
 
-export const defaultOptions = ({ children, sort, cursor, ...props }) => ({
+export const defaultOptions = ({ children, ...props }) => ({
   notifyOnNetworkStatusChange: true,
   variables: {
-    sort: (sort || []).concat("id__asc"),
-    cursor: cursor || null,
     ...(props || {})
   }
 });

@@ -1,0 +1,194 @@
+import React from "react";
+import rison from "rison";
+import { compose, withPropsOnChange, withState } from "recompose";
+import { withRouter } from "react-router";
+import queryString from "query-string";
+import { Flex, Box } from "grid-styled";
+import { Link, NavLink } from "react-router-dom";
+import _, { debounce } from "lodash";
+import urlJoin from "url-join";
+import capitalize from "capitalize";
+
+import CurrentSQON from "@arranger/components/dist/Arranger/CurrentSQON";
+import {
+  currentFilterValue,
+  replaceFilterSQON
+} from "@arranger/components/dist/SQONView/utils";
+import "@arranger/components/public/themeStyles/beagle/beagle.css"; // TODO
+
+import withParams from "@capsid/utils/withParams";
+
+import AggPanel from "@capsid/components/AggPanel";
+
+import ProjectsTab from "@capsid/components/ProjectsTab";
+import SamplesTab from "@capsid/components/SamplesTab";
+import AlignmentsTab from "@capsid/components/AlignmentsTab";
+import GenomesTab from "@capsid/components/GenomesTab";
+
+import SearchProjectContainer from "@capsid/components/containers/SearchProjectContainer";
+import SearchSampleContainer from "@capsid/components/containers/SearchSampleContainer";
+import SearchAlignmentContainer from "@capsid/components/containers/SearchAlignmentContainer";
+import SearchGenomeContainer from "@capsid/components/containers/SearchGenomeContainer";
+
+const containers = {
+  projects: SearchProjectContainer,
+  samples: SearchSampleContainer,
+  alignments: SearchAlignmentContainer,
+  genomes: SearchGenomeContainer
+};
+
+const tabs = {
+  projects: ProjectsTab,
+  samples: SamplesTab,
+  alignments: AlignmentsTab,
+  genomes: GenomesTab
+};
+
+const defaultSort = {
+  projects: ["name__asc"],
+  samples: ["name__asc"],
+  alignments: ["name__asc"],
+  genomes: ["name__asc"]
+};
+
+const aggConfig = {
+  projects: [{ displayName: "Project Label", field: "label", type: "terms" }],
+  samples: [{ displayName: "Sample Version", field: "version", type: "stats" }],
+  genomes: [
+    { displayName: "Genome Accession", field: "accession", type: "terms" },
+    { displayName: "Genome Length", field: "length", type: "stats" }
+  ]
+};
+
+const defaultSQON = { op: "and", content: [] };
+
+const updateParams = ({ history, params, update }) =>
+  history.push({ search: queryString.stringify({ ...params, ...update }) });
+
+const { decode, encode } = rison;
+
+const CellLink = ({ args: { row, value }, to, accessor = "id" }) => (
+  <Link to={`/${to}/${row._original[accessor]}`}>{value}</Link>
+);
+
+const TabLink = ({ tab, to, sqon, data, ...props }) => {
+  return (
+    <NavLink
+      isActive={() => to === tab}
+      activeStyle={{ color: "red" }}
+      to={{
+        pathname: urlJoin("/search", to),
+        search: queryString.stringify({
+          sqon: sqon ? encode(replaceFilterSQON({}, sqon)) : null
+        })
+      }}
+      {...props}
+    >
+      {capitalize(to)} ({(data[to] || {}).total})
+    </NavLink>
+  );
+};
+
+const enhance = compose(
+  withRouter,
+  withParams,
+  withPropsOnChange(["params"], ({ params, history }) => {
+    const updateSQON = nextSQON =>
+      updateParams({
+        history,
+        params,
+        update: { sqon: encode(nextSQON) }
+      });
+    return {
+      sqon: params.sqon ? decode(params.sqon) : defaultSQON,
+      updateSQON,
+      debouncedUpdateSQON: debounce(updateSQON, 500)
+    };
+  }),
+  withState(
+    "filter",
+    "setFilter",
+    ({ sqon }) => (sqon ? currentFilterValue(sqon) : "")
+  )
+);
+
+const Search = ({
+  match: { params: { tab } },
+  params,
+  history,
+  sqon,
+  updateSQON,
+  debouncedUpdateSQON,
+  filter,
+  setFilter,
+  Tab = tabs[tab],
+  Container = containers[tab],
+  sort = params.sort ? _.flatten([params.sort]) : defaultSort[tab]
+}) => (
+  <Container
+    query={JSON.stringify(sqon)}
+    aggs={JSON.stringify(aggConfig)}
+    size={20}
+    tab={tab}
+    sort={sort}
+  >
+    {({ data: { search, loading, refetch }, loadMore }) => (
+      <Flex>
+        <Box width={[1 / 2, 1 / 4, 1 / 6]}>
+          <AggPanel
+            loading={loading}
+            search={search}
+            config={aggConfig}
+            sqon={sqon}
+            updateSQON={debouncedUpdateSQON}
+          />
+        </Box>
+        <Box width={[1 / 2, 3 / 4, 5 / 6]}>
+          <Box>
+            {["projects", "samples", "alignments", "genomes"].map(x => (
+              <TabLink
+                key={x}
+                to={x}
+                tab={tab}
+                sqon={sqon}
+                data={search}
+                onClick={() => setFilter("")}
+              />
+            ))}
+          </Box>
+          <CurrentSQON
+            sqon={sqon}
+            setSQON={nextSQON => {
+              setFilter(currentFilterValue(nextSQON));
+              updateSQON(nextSQON);
+            }}
+          />
+          <Box>
+            <Tab
+              hits={search[tab].hits}
+              sort={sort}
+              filter={filter}
+              updateFilter={({ value, generateNextSQON, filterColumns }) => {
+                setFilter(value);
+                debouncedUpdateSQON(
+                  generateNextSQON({
+                    sqon,
+                    fields: filterColumns.map(x => `${tab}.${x}.search`)
+                  })
+                );
+              }}
+              updateSort={({ sort }) =>
+                updateParams({ history, params, update: { sort } })
+              }
+              CellLink={CellLink}
+            />
+            <button onClick={() => refetch()}>First Page</button>
+            <button onClick={() => loadMore(tab)}>Next Page</button>
+          </Box>
+        </Box>
+      </Flex>
+    )}
+  </Container>
+);
+
+export default enhance(Search);
