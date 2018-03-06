@@ -15,11 +15,18 @@ const AggPanel = ({ config, search, loading, sqon, updateSQON }) => (
           .map(k => ({ entity: k, aggs: search[k].aggs }))
           .filter(({ aggs }) => !!aggs)
           .map(({ entity, aggs }) =>
-            Object.keys(aggs).map(field => ({
-              ...config[entity].find(y => y.field === field),
-              entity,
-              data: aggs[field]
-            }))
+            config[entity].map(({ field, type, ...aggConfig }) => {
+              const aggRoot = aggs[`${field}:global`]
+                ? aggs[`${field}:global`][`${field}:filtered`]
+                : aggs;
+              return {
+                ...aggConfig,
+                field,
+                type,
+                entity,
+                data: aggRoot[type === "stats" ? `${field}:stats` : field]
+              };
+            })
           )
       ).map(
         ({
