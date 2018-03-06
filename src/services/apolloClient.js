@@ -6,6 +6,7 @@ import { setContext } from "apollo-link-context";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { onError } from "apollo-link-error";
 import urlJoin from "url-join";
+import queryString from "query-string";
 
 import { apiRoot } from "@capsid/common/injectGlobals";
 import { history } from "@capsid/services";
@@ -15,7 +16,13 @@ const error = onError(({ graphQLErrors, networkError }) => {
     graphQLErrors.forEach(({ message }) => {
       switch (message) {
         case "User not found": // TODO: use apollo extraInfo??
-          history.push("/login");
+          const { pathname, search } = history.location;
+          history.push({
+            pathname: "/login",
+            search: queryString.stringify({
+              redirect: urlJoin(pathname, search)
+            })
+          });
           break;
         default:
           console.log(`[GraphQL error]: Message: ${message}`);

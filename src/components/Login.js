@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { compose } from "recompose";
 import { connect } from "react-redux";
 import { withApollo } from "react-apollo";
 import { withRouter } from "react-router";
@@ -6,11 +7,14 @@ import { withRouter } from "react-router";
 import { allRedirectUris } from "@capsid/common/injectGlobals";
 import { logoutAll } from "@capsid/services/login";
 import { login } from "@capsid/reducers/reduceUser";
+import { withParams } from "@capsid/utils";
 
 import RedirectLogin from "@capsid/components/RedirectLogin";
 import { Login as LoginQuery } from "@capsid/components/queries";
 
 const gapi = global.gapi;
+
+const enhance = compose(connect(), withApollo, withRouter, withParams);
 
 class Login extends Component {
   state = {
@@ -19,7 +23,7 @@ class Login extends Component {
   };
 
   login = async ({ token, provider }) => {
-    const { client, dispatch, history } = this.props;
+    const { client, dispatch, history, params: { redirect } } = this.props;
     client
       .query({
         query: LoginQuery,
@@ -27,7 +31,7 @@ class Login extends Component {
       })
       .then(({ data: { item } }) => {
         dispatch(login(item));
-        history.push("/");
+        history.push(redirect || "/");
       })
       .catch(async ({ graphQLErrors, networkError }) => {
         await logoutAll();
@@ -82,4 +86,4 @@ class Login extends Component {
   }
 }
 
-export default connect()(withApollo(withRouter(Login)));
+export default enhance(Login);
