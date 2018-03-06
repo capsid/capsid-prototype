@@ -65,13 +65,13 @@ const AggPanel = ({ config, search, loading, sqon, updateSQON }) => (
                 min:
                   currentFieldValue({
                     sqon,
-                    dotField: field,
+                    dotField: namespacedField,
                     op: ">="
                   }) || data.min,
                 max:
                   currentFieldValue({
                     sqon,
-                    dotField: field,
+                    dotField: namespacedField,
                     op: "<="
                   }) || data.max
               }}
