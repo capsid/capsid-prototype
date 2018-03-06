@@ -1,6 +1,6 @@
 import React from "react";
 import rison from "rison";
-import { compose, withPropsOnChange, withState } from "recompose";
+import { compose, withPropsOnChange } from "recompose";
 import { withRouter } from "react-router";
 import queryString from "query-string";
 import { Flex, Box } from "grid-styled";
