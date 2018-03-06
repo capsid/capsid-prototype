@@ -10,10 +10,7 @@ import urlJoin from "url-join";
 import capitalize from "capitalize";
 
 import CurrentSQON from "@arranger/components/dist/Arranger/CurrentSQON";
-import {
-  currentFilterValue,
-  replaceFilterSQON
-} from "@arranger/components/dist/SQONView/utils";
+import { currentFilterValue } from "@arranger/components/dist/SQONView/utils";
 import "@arranger/components/public/themeStyles/beagle/beagle.css"; // TODO
 
 import { updateParams, withParams } from "@capsid/utils";
@@ -76,7 +73,8 @@ const TabLink = ({ tab, to, sqon, data, ...props }) => {
       to={{
         pathname: urlJoin("/search", to),
         search: queryString.stringify({
-          sqon: sqon ? encode(replaceFilterSQON({}, sqon)) : null
+          sqon: encode(sqon),
+          filter: currentFilterValue(sqon, to)
         })
       }}
       {...props}
@@ -130,20 +128,13 @@ const Search = ({
         <Box width={[1 / 2, 3 / 4, 5 / 6]}>
           <Box>
             {["projects", "samples", "alignments", "genomes"].map(x => (
-              <TabLink
-                key={x}
-                to={x}
-                tab={tab}
-                sqon={sqon}
-                data={search}
-                onClick={() => updateParams({ filter: "" })}
-              />
+              <TabLink key={x} to={x} tab={tab} sqon={sqon} data={search} />
             ))}
           </Box>
           <CurrentSQON
             sqon={sqon}
             setSQON={nextSQON => {
-              updateParams({ filter: currentFilterValue(nextSQON) });
+              updateParams({ filter: currentFilterValue(nextSQON, tab) });
               updateSQON(nextSQON);
             }}
           />
@@ -157,7 +148,8 @@ const Search = ({
                 updateSQON(
                   generateNextSQON({
                     sqon,
-                    fields: filterColumns.map(x => `${tab}.${x}.search`)
+                    fields: filterColumns.map(x => `${tab}.${x}.search`),
+                    entity: tab
                   })
                 );
               }}
