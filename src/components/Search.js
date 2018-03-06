@@ -16,7 +16,7 @@ import {
 } from "@arranger/components/dist/SQONView/utils";
 import "@arranger/components/public/themeStyles/beagle/beagle.css"; // TODO
 
-import withParams from "@capsid/utils/withParams";
+import { updateParams, withParams } from "@capsid/utils";
 
 import AggPanel from "@capsid/components/AggPanel";
 
@@ -62,9 +62,6 @@ const aggConfig = {
 
 const defaultSQON = { op: "and", content: [] };
 
-const updateParams = ({ history, params, update }) =>
-  history.push({ search: queryString.stringify({ ...params, ...update }) });
-
 const { decode, encode } = rison;
 
 const CellLink = ({ args: { row, value }, to, accessor = "id" }) => (
@@ -92,35 +89,22 @@ const TabLink = ({ tab, to, sqon, data, ...props }) => {
 const enhance = compose(
   withRouter,
   withParams,
-  withPropsOnChange(["params"], ({ params, history }) => {
-    const updateSQON = nextSQON =>
-      updateParams({
-        history,
-        params,
-        update: { sqon: encode(nextSQON) }
-      });
+  withPropsOnChange(["params"], ({ params }) => {
+    const updateSQON = nextSQON => updateParams({ sqon: encode(nextSQON) });
     return {
       sqon: params.sqon ? decode(params.sqon) : defaultSQON,
       updateSQON,
       debouncedUpdateSQON: debounce(updateSQON, 500)
     };
-  }),
-  withState(
-    "filter",
-    "setFilter",
-    ({ sqon }) => (sqon ? currentFilterValue(sqon) : "")
-  )
+  })
 );
 
 const Search = ({
   match: { params: { tab } },
-  params,
-  history,
+  params: { filter = "", ...params },
   sqon,
   updateSQON,
   debouncedUpdateSQON,
-  filter,
-  setFilter,
   Tab = tabs[tab],
   Container = containers[tab],
   sort = params.sort ? _.flatten([params.sort]) : defaultSort[tab]
@@ -152,14 +136,14 @@ const Search = ({
                 tab={tab}
                 sqon={sqon}
                 data={search}
-                onClick={() => setFilter("")}
+                onClick={() => updateParams({ filter: "" })}
               />
             ))}
           </Box>
           <CurrentSQON
             sqon={sqon}
             setSQON={nextSQON => {
-              setFilter(currentFilterValue(nextSQON));
+              updateParams({ filter: currentFilterValue(nextSQON) });
               updateSQON(nextSQON);
             }}
           />
@@ -169,17 +153,15 @@ const Search = ({
               sort={sort}
               filter={filter}
               updateFilter={({ value, generateNextSQON, filterColumns }) => {
-                setFilter(value);
-                debouncedUpdateSQON(
+                updateParams({ filter: value });
+                updateSQON(
                   generateNextSQON({
                     sqon,
                     fields: filterColumns.map(x => `${tab}.${x}.search`)
                   })
                 );
               }}
-              updateSort={({ sort }) =>
-                updateParams({ history, params, update: { sort } })
-              }
+              updateSort={({ sort }) => updateParams({ sort })}
               CellLink={CellLink}
             />
             <button onClick={() => refetch()}>First Page</button>
