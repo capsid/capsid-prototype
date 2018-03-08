@@ -35,8 +35,9 @@ const Query = gql`
           length
           organism
           accession
-          taxonomy
           statistics
+          taxonomy
+          taxonId
         }
       }
     }

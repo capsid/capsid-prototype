@@ -27,6 +27,7 @@ const GenomesTab = ({
         accessor: x => (x.taxonomy || []).join(" / ")
       },
       { Header: "Accession", accessor: "accession" },
+      { Header: "Taxon Id", accessor: "taxonId" },
       { Header: "Length", accessor: "length" },
       ...(hasStatistics
         ? [
@@ -41,7 +42,7 @@ const GenomesTab = ({
         : [])
     ]}
     filter={filter}
-    filterColumns={["name", "organism", "taxonomy", "accession"]}
+    filterColumns={["name", "organism", "taxonomy", "accession", "taxonId"]}
     updateFilter={updateFilter}
     sort={sort}
     updateSort={updateSort}
