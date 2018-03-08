@@ -20,6 +20,7 @@ const Query = gql`
         total
         aggs
         endCursor
+        hasStatistics
         hits(size: $size, after: $after, sort: $sort) {
           id
           projectId
@@ -29,6 +30,7 @@ const Query = gql`
           description
           cancer
           version
+          statistics
         }
       }
       alignments {

@@ -1,10 +1,12 @@
 import React from "react";
 
 import DataTable from "@capsid/components/DataTable";
+import Statistics from "@capsid/components/Statistics";
 
 const AlignmentsTab = ({
   filter,
   updateFilter,
+  hasStatistics,
   hits,
   sort,
   updateSort,
@@ -31,7 +33,18 @@ const AlignmentsTab = ({
       },
       { Header: "Aligner", accessor: "aligner" },
       { Header: "Platform", accessor: "platform" },
-      { Header: "Type", accessor: "type" }
+      { Header: "Type", accessor: "type" },
+      ...(hasStatistics
+        ? [
+            {
+              Header: "Statistics",
+              id: "statistics",
+              sortable: false,
+              accessor: "statistics",
+              Cell: ({ value }) => <Statistics content={value} />
+            }
+          ]
+        : [])
     ]}
     filterColumns={[
       "name",

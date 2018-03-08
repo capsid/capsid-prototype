@@ -8,7 +8,6 @@ export const fragments = {
   details: gql`
     fragment SampleDetails on Sample {
       source
-      role
       description
       cancer
       name

@@ -1,10 +1,12 @@
 import React from "react";
 
 import DataTable from "@capsid/components/DataTable";
+import Statistics from "@capsid/components/Statistics";
 
 const SamplesTab = ({
   filter,
   updateFilter,
+  hasStatistics,
   hits,
   sort,
   updateSort,
@@ -26,7 +28,18 @@ const SamplesTab = ({
       },
       { Header: "Cancer", accessor: "cancer" },
       { Header: "Source", accessor: "source" },
-      { Header: "Version", accessor: "version" }
+      { Header: "Version", accessor: "version" },
+      ...(hasStatistics
+        ? [
+            {
+              Header: "Statistics",
+              id: "statistics",
+              sortable: false,
+              accessor: "statistics",
+              Cell: ({ value }) => <Statistics content={value} />
+            }
+          ]
+        : [])
     ]}
     filter={filter}
     filterColumns={["name", "projectLabel", "cancer", "source"]}

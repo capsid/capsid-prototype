@@ -140,6 +140,7 @@ const Search = ({
           />
           <Box>
             <Tab
+              hasStatistics={search[tab].hasStatistics}
               hits={search[tab].hits}
               sort={sort}
               filter={filter}

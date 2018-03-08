@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@arranger/components": "^0.1.0",
-    "@arranger/middleware": "^0.1.0",
+    "@arranger/components": "^0.1.25",
     "apollo-client-preset": "^1.0.8",
     "apollo-link": "^1.2.1",
     "apollo-link-context": "^1.0.7",
@@ -28,6 +27,7 @@
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.0",
     "react-table": "^6.7.6",
+    "react-tooltip": "^3.4.0",
     "recompose": "^0.26.0",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
