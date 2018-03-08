@@ -7,7 +7,6 @@ export const fragments = {
   details: gql`
     fragment ProjectDetails on Project {
       description
-      roles
       label
       version
       wikiLink

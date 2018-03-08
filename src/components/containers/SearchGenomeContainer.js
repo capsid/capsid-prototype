@@ -28,6 +28,7 @@ const Query = gql`
         total
         aggs
         endCursor
+        hasStatistics
         hits(size: $size, after: $after, sort: $sort) {
           id
           name
@@ -35,6 +36,7 @@ const Query = gql`
           organism
           accession
           taxonomy
+          statistics
         }
       }
     }

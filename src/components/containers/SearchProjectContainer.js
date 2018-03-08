@@ -16,6 +16,7 @@ const Query = gql`
         total
         endCursor
         aggs
+        hasStatistics
         hits(size: $size, after: $after, sort: $sort) {
           id
           description
@@ -23,6 +24,7 @@ const Query = gql`
           version
           wikiLink
           name
+          statistics
         }
       }
       samples {
