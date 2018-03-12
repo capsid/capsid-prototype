@@ -31,6 +31,7 @@ const Query = gql`
           cancer
           version
           statistics
+          counts
         }
       }
       alignments {

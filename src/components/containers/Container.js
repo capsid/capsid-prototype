@@ -3,7 +3,7 @@ const defaults = n => ({
     (obj, x) => ({
       ...obj,
       [x]: {
-        hits: [...Array(n)].map(() => ({}))
+        hits: [...Array(n)].map(() => ({ counts: {} }))
       }
     }),
     {}

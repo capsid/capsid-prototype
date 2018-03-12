@@ -29,6 +29,18 @@ const SamplesTab = ({
       { Header: "Cancer", accessor: "cancer" },
       { Header: "Source", accessor: "source" },
       { Header: "Version", accessor: "version" },
+      {
+        Header: "# Alignments",
+        id: "alignmentCount",
+        accessor: x => x.counts["alignments"],
+        sortable: false
+      },
+      {
+        Header: "# Genomes",
+        id: "genomeCount",
+        accessor: x => x.counts["genomes"],
+        sortable: false
+      },
       ...(hasStatistics
         ? [
             {

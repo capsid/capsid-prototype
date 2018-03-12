@@ -39,6 +39,7 @@ const Query = gql`
           infile
           outfile
           statistics
+          counts
         }
       }
       genomes {
