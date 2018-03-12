@@ -10,7 +10,8 @@ const AlignmentsTab = ({
   hits,
   sort,
   updateSort,
-  CellLink
+  CellLink,
+  CountLink
 }) => (
   <DataTable
     data={hits}
@@ -38,7 +39,8 @@ const AlignmentsTab = ({
         Header: "# Genomes",
         id: "genomeCount",
         accessor: x => x.counts["genomes"],
-        sortable: false
+        sortable: false,
+        Cell: args => CountLink({ args, to: "genomes" })
       },
       ...(hasStatistics
         ? [

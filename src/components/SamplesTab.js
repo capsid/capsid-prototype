@@ -10,7 +10,8 @@ const SamplesTab = ({
   hits,
   sort,
   updateSort,
-  CellLink
+  CellLink,
+  CountLink
 }) => (
   <DataTable
     data={hits}
@@ -33,13 +34,15 @@ const SamplesTab = ({
         Header: "# Alignments",
         id: "alignmentCount",
         accessor: x => x.counts["alignments"],
-        sortable: false
+        sortable: false,
+        Cell: args => CountLink({ args, to: "alignments" })
       },
       {
         Header: "# Genomes",
         id: "genomeCount",
         accessor: x => x.counts["genomes"],
-        sortable: false
+        sortable: false,
+        Cell: args => CountLink({ args, to: "genomes" })
       },
       ...(hasStatistics
         ? [

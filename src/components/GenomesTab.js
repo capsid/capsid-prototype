@@ -10,7 +10,8 @@ const GenomesTab = ({
   hits,
   sort,
   updateSort,
-  CellLink
+  CellLink,
+  CountLink
 }) => (
   <DataTable
     data={hits}
@@ -33,19 +34,22 @@ const GenomesTab = ({
         Header: "# Projects",
         id: "projectCount",
         accessor: x => x.counts["projects"],
-        sortable: false
+        sortable: false,
+        Cell: args => CountLink({ args, to: "projects" })
       },
       {
         Header: "# Samples",
         id: "sampleCount",
         accessor: x => x.counts["samples"],
-        sortable: false
+        sortable: false,
+        Cell: args => CountLink({ args, to: "samples" })
       },
       {
         Header: "# Alignments",
         id: "alignmentCount",
         accessor: x => x.counts["alignments"],
-        sortable: false
+        sortable: false,
+        Cell: args => CountLink({ args, to: "alignments" })
       },
       ...(hasStatistics
         ? [
