@@ -13,7 +13,7 @@ import CurrentSQON from "@arranger/components/dist/Arranger/CurrentSQON";
 import { currentFilterValue } from "@arranger/components/dist/SQONView/utils";
 import "@arranger/components/public/themeStyles/beagle/beagle.css"; // TODO
 
-import { updateParams, withParams } from "@capsid/utils";
+import { addInSQON, updateParams, withParams } from "@capsid/utils";
 
 import AggPanel from "@capsid/components/AggPanel";
 
@@ -49,34 +49,61 @@ const defaultSort = {
 };
 
 const aggConfig = {
-  projects: [{ displayName: "Project Label", field: "label", type: "terms" }],
-  samples: [{ displayName: "Sample Version", field: "version", type: "stats" }],
-  genomes: [
-    { displayName: "Genome Accession", field: "accession", type: "terms" },
-    { displayName: "Genome Length", field: "length", type: "stats" }
-  ]
+  samples: [{ displayName: "Cancer", field: "cancer", type: "terms" }],
+  genomes: [{ displayName: "Genome Length", field: "length", type: "stats" }]
 };
 
 const defaultSQON = { op: "and", content: [] };
 
 const { decode, encode } = rison;
 
+const nextTabLocation = ({ tab, sqon }) => ({
+  pathname: urlJoin("/search", tab),
+  search: queryString.stringify({
+    sqon: encode(sqon),
+    filter: currentFilterValue(sqon, tab)
+  })
+});
+
 const CellLink = ({ args: { row, value }, to, accessor = "id" }) => (
   <Link to={`/${to}/${row._original[accessor]}`}>{value}</Link>
 );
+
+const CountLink = ({ sqon, tab }) => ({
+  args: { row, value, ...args },
+  to
+}) => {
+  const items = {
+    projects: [{ field: "projects.label", value: row.label }],
+    samples: [
+      { field: "projects.label", value: row.projectLabel },
+      { field: "samples.name", value: row.name }
+    ],
+    alignments: [
+      { field: "projects.label", value: row.projectLabel },
+      { field: "samples.name", value: row.sample },
+      { field: "alignments.name", value: row.name }
+    ],
+    genomes: [{ field: "genomes.accession", value: row.accession }]
+  };
+  return (
+    <Link
+      to={nextTabLocation({
+        tab: to,
+        sqon: addInSQON({ items: items[tab], sqon })
+      })}
+    >
+      {value}
+    </Link>
+  );
+};
 
 const TabLink = ({ tab, to, sqon, data, ...props }) => {
   return (
     <NavLink
       isActive={() => to === tab}
       activeStyle={{ color: "red" }}
-      to={{
-        pathname: urlJoin("/search", to),
-        search: queryString.stringify({
-          sqon: encode(sqon),
-          filter: currentFilterValue(sqon, to)
-        })
-      }}
+      to={nextTabLocation({ tab: to, sqon })}
       {...props}
     >
       {capitalize(to)} ({(data[to] || {}).total})
@@ -156,6 +183,7 @@ const Search = ({
               }}
               updateSort={({ sort }) => updateParams({ sort })}
               CellLink={CellLink}
+              CountLink={CountLink({ sqon, tab })}
             />
             <button onClick={() => refetch()}>First Page</button>
             <button onClick={() => loadMore(tab)}>Next Page</button>
