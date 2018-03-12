@@ -49,7 +49,7 @@ const defaultSort = {
 };
 
 const aggConfig = {
-  samples: [{ displayName: "Cancer", field: "cancer", type: "terms" }],
+  samples: [{ displayName: "Disease", field: "cancer", type: "terms" }],
   genomes: [{ displayName: "Genome Length", field: "length", type: "stats" }]
 };
 

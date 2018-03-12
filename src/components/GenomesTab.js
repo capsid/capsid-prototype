@@ -21,7 +21,6 @@ const GenomesTab = ({
         accessor: "name",
         Cell: args => CellLink({ args, to: "genome", accessor: "id" })
       },
-      { Header: "Organism", accessor: "organism" },
       {
         Header: "Taxonomy",
         id: "taxonomy",
@@ -29,7 +28,6 @@ const GenomesTab = ({
       },
       { Header: "Accession", accessor: "accession" },
       { Header: "Taxon Id", accessor: "taxonId" },
-      { Header: "Length", accessor: "length" },
       {
         Header: "# Projects",
         id: "projectCount",

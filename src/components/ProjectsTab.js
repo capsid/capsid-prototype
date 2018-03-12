@@ -21,10 +21,7 @@ const ProjectsTab = ({
         accessor: "name",
         Cell: args => CellLink({ args, to: "projects", accessor: "id" })
       },
-      { Header: "Description", accessor: "description", sortable: false },
       { Header: "Label", accessor: "label" },
-      { Header: "Wiki", accessor: "wikiLink", sortable: false },
-      { Header: "Version", accessor: "version" },
       {
         Header: "# Samples",
         id: "sampleCount",

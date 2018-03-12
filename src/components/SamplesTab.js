@@ -27,9 +27,7 @@ const SamplesTab = ({
         accessor: "projectLabel",
         Cell: args => CellLink({ args, to: "projects", accessor: "projectId" })
       },
-      { Header: "Cancer", accessor: "cancer" },
-      { Header: "Source", accessor: "source" },
-      { Header: "Version", accessor: "version" },
+      { Header: "Disease", accessor: "cancer" },
       {
         Header: "# Alignments",
         id: "alignmentCount",
