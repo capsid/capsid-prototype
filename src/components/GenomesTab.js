@@ -29,6 +29,24 @@ const GenomesTab = ({
       { Header: "Accession", accessor: "accession" },
       { Header: "Taxon Id", accessor: "taxonId" },
       { Header: "Length", accessor: "length" },
+      {
+        Header: "# Projects",
+        id: "projectCount",
+        accessor: x => x.counts["projects"],
+        sortable: false
+      },
+      {
+        Header: "# Samples",
+        id: "sampleCount",
+        accessor: x => x.counts["samples"],
+        sortable: false
+      },
+      {
+        Header: "# Alignments",
+        id: "alignmentCount",
+        accessor: x => x.counts["alignments"],
+        sortable: false
+      },
       ...(hasStatistics
         ? [
             {

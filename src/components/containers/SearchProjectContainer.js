@@ -25,6 +25,7 @@ const Query = gql`
           wikiLink
           name
           statistics
+          counts
         }
       }
       samples {

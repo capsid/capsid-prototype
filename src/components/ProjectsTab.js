@@ -24,6 +24,24 @@ const ProjectsTab = ({
       { Header: "Label", accessor: "label" },
       { Header: "Wiki", accessor: "wikiLink", sortable: false },
       { Header: "Version", accessor: "version" },
+      {
+        Header: "# Samples",
+        id: "sampleCount",
+        accessor: x => x.counts["samples"],
+        sortable: false
+      },
+      {
+        Header: "# Alignments",
+        id: "alignmentCount",
+        accessor: x => x.counts["alignments"],
+        sortable: false
+      },
+      {
+        Header: "# Genomes",
+        id: "genomeCount",
+        accessor: x => x.counts["genomes"],
+        sortable: false
+      },
       ...(hasStatistics
         ? [
             {

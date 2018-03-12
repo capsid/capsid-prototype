@@ -34,6 +34,12 @@ const AlignmentsTab = ({
       { Header: "Aligner", accessor: "aligner" },
       { Header: "Platform", accessor: "platform" },
       { Header: "Type", accessor: "type" },
+      {
+        Header: "# Genomes",
+        id: "genomeCount",
+        accessor: x => x.counts["genomes"],
+        sortable: false
+      },
       ...(hasStatistics
         ? [
             {
