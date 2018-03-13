@@ -3,7 +3,7 @@ import { concat } from "apollo-link";
 import { createPersistedQueryLink } from "apollo-link-persisted-queries";
 import { createHttpLink } from "apollo-link-http";
 import { setContext } from "apollo-link-context";
-import { InMemoryCache } from "apollo-cache-inmemory";
+import { InMemoryCache, defaultDataIdFromObject } from "apollo-cache-inmemory";
 import { onError } from "apollo-link-error";
 import urlJoin from "url-join";
 import queryString from "query-string";
@@ -44,7 +44,9 @@ const httpLink = createHttpLink({ uri: urlJoin(apiRoot, "graphql") });
 
 const client = new ApolloClient({
   link: linkMiddleware.concat(httpLink),
-  cache: new InMemoryCache()
+  cache: new InMemoryCache({
+    dataIdFromObject: x => x.cacheId || defaultDataIdFromObject(x)
+  })
 });
 
 export default client;

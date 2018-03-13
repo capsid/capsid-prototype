@@ -19,6 +19,7 @@ const Query = gql`
         hasStatistics
         hits(size: $size, after: $after, sort: $sort) {
           id
+          cacheId
           description
           label
           version

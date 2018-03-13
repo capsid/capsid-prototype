@@ -31,6 +31,7 @@ const Query = gql`
         hasStatistics
         hits(size: $size, after: $after, sort: $sort) {
           id
+          cacheId
           name
           length
           organism
