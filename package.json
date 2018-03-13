@@ -40,6 +40,7 @@
   },
   "scripts": {
     "start": "BROWSER=none jailbreak-react-scripts start",
+    "netlify": "REACT_APP_NODE_ENV=netlify jailbreak-react-scripts build",
     "build": "jailbreak-react-scripts build",
     "test": "react-scripts test --env=jsdom"
   },
