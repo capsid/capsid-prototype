@@ -57,6 +57,10 @@ const defaultSQON = { op: "and", content: [] };
 
 const { decode, encode } = rison;
 
+const updateSQON = nextSQON => updateParams({ sqon: encode(nextSQON) });
+
+const debouncedUpdateSQON = debounce(updateSQON, 500);
+
 const nextTabLocation = ({ tab, sqon }) => ({
   pathname: urlJoin("/search", tab),
   search: queryString.stringify({
@@ -114,22 +118,15 @@ const TabLink = ({ tab, to, sqon, data, ...props }) => {
 const enhance = compose(
   withRouter,
   withParams,
-  withPropsOnChange(["params"], ({ params }) => {
-    const updateSQON = nextSQON => updateParams({ sqon: encode(nextSQON) });
-    return {
-      sqon: params.sqon ? decode(params.sqon) : defaultSQON,
-      updateSQON,
-      debouncedUpdateSQON: debounce(updateSQON, 500)
-    };
-  })
+  withPropsOnChange(["params"], ({ params }) => ({
+    sqon: params.sqon ? decode(params.sqon) : defaultSQON
+  }))
 );
 
 const Search = ({
   match: { params: { tab } },
   params: { filter = "", ...params },
   sqon,
-  updateSQON,
-  debouncedUpdateSQON,
   Tab = tabs[tab],
   Container = containers[tab],
   sort = params.sort ? _.flatten([params.sort]) : defaultSort[tab]
@@ -173,7 +170,7 @@ const Search = ({
               filter={filter}
               updateFilter={({ value, generateNextSQON, filterColumns }) => {
                 updateParams({ filter: value });
-                updateSQON(
+                debouncedUpdateSQON(
                   generateNextSQON({
                     sqon,
                     fields: filterColumns.map(x => `${tab}.${x}.search`),
