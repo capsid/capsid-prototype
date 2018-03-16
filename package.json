@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@arranger/components": "^0.1.25",
+    "@arranger/components": "^0.1.37",
     "apollo-client-preset": "^1.0.8",
     "apollo-link": "^1.2.1",
     "apollo-link-context": "^1.0.7",
@@ -40,7 +40,7 @@
   },
   "scripts": {
     "start": "BROWSER=none jailbreak-react-scripts start",
-    "netlify": "REACT_APP_NODE_ENV=netlify jailbreak-react-scripts build",
+    "netlify": "jailbreak-react-scripts build",
     "build": "jailbreak-react-scripts build",
     "test": "react-scripts test --env=jsdom"
   },

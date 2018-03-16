@@ -9,7 +9,7 @@ import _, { debounce } from "lodash";
 import urlJoin from "url-join";
 import capitalize from "capitalize";
 
-import CurrentSQON from "@arranger/components/dist/Arranger/CurrentSQON";
+import { CurrentSQON } from "@arranger/components/dist/Arranger/CurrentSQON";
 import { currentFilterValue } from "@arranger/components/dist/SQONView/utils";
 import "@arranger/components/public/themeStyles/beagle/beagle.css"; // TODO
 
