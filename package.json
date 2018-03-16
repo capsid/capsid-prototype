@@ -2,6 +2,12 @@
   "name": "capsid-prototype",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "start": "BROWSER=none jailbreak-react-scripts start",
+    "build": "jailbreak-react-scripts build",
+    "build-netlify": "jailbreak-react-scripts build && cp netlify/* build/",
+    "test": "react-scripts test --env=jsdom"
+  },
   "dependencies": {
     "@arranger/components": "^0.1.37",
     "apollo-client-preset": "^1.0.8",
@@ -37,11 +43,6 @@
     "updeep": "^1.0.0",
     "url-join": "^4.0.0",
     "with-query": "^1.0.2"
-  },
-  "scripts": {
-    "start": "BROWSER=none jailbreak-react-scripts start",
-    "build": "jailbreak-react-scripts build",
-    "test": "react-scripts test --env=jsdom"
   },
   "devDependencies": {
     "eslint-config-prettier": "^2.9.0",
