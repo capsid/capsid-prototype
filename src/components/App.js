@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import styled from "react-emotion";
 import { withRouter } from "react-router";
 
+import NotFound from "@capsid/components/NotFound";
 import AuthRedirect from "@capsid/components/AuthRedirect";
 import Header from "@capsid/components/Header";
 import Home from "@capsid/components/Home";
@@ -47,6 +48,7 @@ const AppWithRouter = withRouter(() => (
         <Route exact path="/login" component={Login} />
         <Route exact path="/auth-redirect" component={AuthRedirect} />
         <Route exact path="/redirected" component={() => null} />
+        <Route component={NotFound} />
       </Switch>
     </Content>
   </div>
