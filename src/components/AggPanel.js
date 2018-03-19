@@ -1,5 +1,7 @@
 import React from "react";
 import _ from "lodash";
+import { compose } from "recompose";
+import { withApollo } from "react-apollo";
 
 import { TermAgg, RangeAgg } from "@arranger/components/dist/Aggs";
 import {
@@ -7,16 +9,32 @@ import {
   currentFieldValue
 } from "@arranger/components/dist/SQONView/utils";
 
+import { namespaceField } from "@capsid/utils";
+
 const aggDataFromSearch = ({ config, entity, field, search, type }) => {
   const aggs = search[entity].aggs;
   if (!aggs) return {};
   const aggRoot = aggs[`${field}:global`]
     ? aggs[`${field}:global`][`${field}:filtered`]
     : aggs;
-  return aggRoot[type === "stats" ? `${field}:stats` : field];
+  return type === "stats"
+    ? aggRoot[`${field}:stats`]
+    : {
+        ...aggRoot[field],
+        buckets: aggRoot[field].buckets.map(({ key }) => ({ key }))
+      };
 };
 
-const AggPanel = ({ config, search, sqon, updateSQON }) => (
+const enhance = compose(withApollo);
+
+const AggPanel = ({
+  client,
+  config,
+  search,
+  sqon,
+  updateSQON,
+  bucketCounts
+}) => (
   <div>
     {_.flatten(
       Object.keys(config).map(k => config[k].map(x => ({ ...x, entity: k })))
@@ -26,7 +44,7 @@ const AggPanel = ({ config, search, sqon, updateSQON }) => (
         entity,
         field,
         type,
-        namespacedField = `${entity}.${field}`,
+        namespacedField = namespaceField({ entity, field }),
         data = aggDataFromSearch({ config, entity, field, search, type }) || {},
         key = JSON.stringify({ namespacedField, data })
       }) =>
@@ -35,7 +53,7 @@ const AggPanel = ({ config, search, sqon, updateSQON }) => (
             key={key}
             field={namespacedField}
             displayName={displayName}
-            buckets={data.buckets}
+            buckets={bucketCounts[namespacedField] || data.buckets}
             handleValueClick={({ generateNextSQON }) =>
               updateSQON(generateNextSQON(sqon))
             }
@@ -76,4 +94,4 @@ const AggPanel = ({ config, search, sqon, updateSQON }) => (
   </div>
 );
 
-export default AggPanel;
+export default enhance(AggPanel);
