@@ -9,7 +9,7 @@
     "test": "react-scripts test --env=jsdom"
   },
   "dependencies": {
-    "@arranger/components": "^0.1.37",
+    "@arranger/components": "^0.1.40",
     "apollo-client-preset": "^1.0.8",
     "apollo-link": "^1.2.1",
     "apollo-link-context": "^1.0.7",
