@@ -1,6 +1,7 @@
 import React from "react";
 import rison from "rison";
-import { compose, withPropsOnChange } from "recompose";
+import { compose, withPropsOnChange, withState } from "recompose";
+import { withApollo } from "react-apollo";
 import { withRouter } from "react-router";
 import queryString from "query-string";
 import { Flex, Box } from "grid-styled";
@@ -13,7 +14,12 @@ import { CurrentSQON } from "@arranger/components/dist/Arranger/CurrentSQON";
 import { currentFilterValue } from "@arranger/components/dist/SQONView/utils";
 import "@arranger/components/public/themeStyles/beagle/beagle.css"; // TODO
 
-import { addInSQON, updateParams, withParams } from "@capsid/utils";
+import {
+  addInSQON,
+  updateParams,
+  withParams,
+  namespaceField
+} from "@capsid/utils";
 
 import AggPanel from "@capsid/components/AggPanel";
 
@@ -26,6 +32,7 @@ import SearchProjectContainer from "@capsid/components/containers/SearchProjectC
 import SearchSampleContainer from "@capsid/components/containers/SearchSampleContainer";
 import SearchAlignmentContainer from "@capsid/components/containers/SearchAlignmentContainer";
 import SearchGenomeContainer from "@capsid/components/containers/SearchGenomeContainer";
+import { SearchAggCount as SearchAggCountQuery } from "@capsid/components/queries";
 
 const containers = {
   projects: SearchProjectContainer,
@@ -49,7 +56,10 @@ const defaultSort = {
 };
 
 const aggConfig = {
-  samples: [{ displayName: "Disease", field: "cancer", type: "terms" }],
+  samples: [
+    { displayName: "Disease", field: "cancer", type: "terms" },
+    { displayName: "Source", field: "source", type: "terms" }
+  ],
   genomes: [{ displayName: "Genome Length", field: "length", type: "stats" }]
 };
 
@@ -115,18 +125,49 @@ const TabLink = ({ tab, to, sqon, data, ...props }) => {
   );
 };
 
+const fetchBucketCounts = ({ client, sqon, config, setBucketCounts }) => {
+  let buckets = {};
+  Object.keys(config).map(entity =>
+    config[entity].filter(x => x.type === "terms").map(({ field, type }) =>
+      client
+        .query({
+          query: SearchAggCountQuery,
+          variables: {
+            query: JSON.stringify(sqon),
+            aggs: JSON.stringify(config),
+            agg: JSON.stringify({ entity, field, type })
+          }
+        })
+        .then(({ data: { items } }) => {
+          buckets[namespaceField({ entity, field })] = items.buckets;
+          setBucketCounts(buckets);
+        })
+        .catch(err => console.error(err))
+    )
+  );
+};
+
 const enhance = compose(
+  withApollo,
   withRouter,
   withParams,
   withPropsOnChange(["params"], ({ params }) => ({
     sqon: params.sqon ? decode(params.sqon) : defaultSQON
-  }))
+  })),
+  withState("bucketCounts", "setBucketCounts", {}),
+  withPropsOnChange(
+    (props, nextProps) => !_.isEqual(props.sqon, nextProps.sqon),
+    ({ sqon, client, setBucketCounts }) =>
+      fetchBucketCounts({ client, sqon, config: aggConfig, setBucketCounts })
+  )
 );
 
 const Search = ({
   match: { params: { tab } },
   params: { filter = "", ...params },
   sqon,
+  bucketCounts,
+  setBucketCounts,
   Tab = tabs[tab],
   Container = containers[tab],
   sort = params.sort ? _.flatten([params.sort]) : defaultSort[tab]
@@ -142,6 +183,8 @@ const Search = ({
       <Flex>
         <Box width={[1 / 2, 1 / 4, 1 / 6]}>
           <AggPanel
+            bucketCounts={bucketCounts}
+            setBucketCounts={setBucketCounts}
             loading={loading}
             search={search}
             config={aggConfig}
