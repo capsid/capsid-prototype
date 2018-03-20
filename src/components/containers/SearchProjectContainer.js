@@ -15,7 +15,6 @@ const Query = gql`
       projects {
         total
         endCursor
-        aggs
         hasStatistics
         hits(size: $size, after: $after, sort: $sort) {
           id
@@ -31,15 +30,12 @@ const Query = gql`
       }
       samples {
         total
-        aggs
       }
       alignments {
         total
-        aggs
       }
       genomes {
         total
-        aggs
       }
     }
   }
