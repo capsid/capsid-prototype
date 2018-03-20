@@ -1,5 +1,5 @@
 const defaults = n => ({
-  search: ["alignments", "genomes", "projects", "samples"].reduce(
+  search: ["alignments", "genomes", "projects", "samples", "statistics"].reduce(
     (obj, x) => ({
       ...obj,
       [x]: {

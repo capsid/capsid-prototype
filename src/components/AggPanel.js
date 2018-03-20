@@ -11,18 +11,17 @@ import {
 
 import { namespaceField } from "@capsid/utils";
 
-const aggDataFromSearch = ({ config, entity, field, search, type }) => {
-  const aggs = search[entity].aggs;
-  if (!aggs) return {};
-  const aggRoot = aggs[`${field}:global`]
-    ? aggs[`${field}:global`][`${field}:filtered`]
-    : aggs;
-  return type === "stats"
-    ? aggRoot[`${field}:stats`]
-    : {
-        ...aggRoot[field],
-        buckets: aggRoot[field].buckets.map(({ key }) => ({ key }))
-      };
+const parseData = ({ data: { stats, ...data } }) => {
+  if (!stats) return data;
+  return {
+    stats: Object.keys(stats).reduce((obj, k) => ({
+      ...obj,
+      [k]:
+        stats[k] > 0 && stats[k] < 1
+          ? Math.round(stats[k] * 100) / 100
+          : stats[k]
+    }))
+  };
 };
 
 const enhance = compose(withApollo);
@@ -33,9 +32,24 @@ const AggPanel = ({
   search,
   sqon,
   updateSQON,
-  bucketCounts
+  aggData,
+  loading
 }) => (
-  <div>
+  <div style={{ position: "relative" }}>
+    {loading && (
+      <div
+        style={{
+          position: "absolute",
+          zIndex: 1,
+          top: 0,
+          left: 0,
+          backgroundColor: "gray",
+          height: "100%",
+          width: "100%",
+          opacity: 0.5
+        }}
+      />
+    )}
     {_.flatten(
       Object.keys(config).map(k => config[k].map(x => ({ ...x, entity: k })))
     ).map(
@@ -45,7 +59,10 @@ const AggPanel = ({
         field,
         type,
         namespacedField = namespaceField({ entity, field }),
-        data = aggDataFromSearch({ config, entity, field, search, type }) || {},
+        data = parseData({
+          type,
+          data: aggData[namespacedField] || (search[entity] || {}).aggs || {}
+        }),
         key = JSON.stringify({ namespacedField, data })
       }) =>
         type === "terms" ? (
@@ -53,7 +70,7 @@ const AggPanel = ({
             key={key}
             field={namespacedField}
             displayName={displayName}
-            buckets={bucketCounts[namespacedField] || data.buckets}
+            buckets={data.buckets}
             handleValueClick={({ generateNextSQON }) =>
               updateSQON(generateNextSQON(sqon))
             }
@@ -70,7 +87,7 @@ const AggPanel = ({
             key={key}
             field={namespacedField}
             displayName={displayName}
-            stats={data}
+            stats={data.stats || {}}
             value={{
               min:
                 currentFieldValue({

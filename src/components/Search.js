@@ -22,12 +22,10 @@ import {
 } from "@capsid/utils";
 
 import AggPanel from "@capsid/components/AggPanel";
-
 import ProjectsTab from "@capsid/components/ProjectsTab";
 import SamplesTab from "@capsid/components/SamplesTab";
 import AlignmentsTab from "@capsid/components/AlignmentsTab";
 import GenomesTab from "@capsid/components/GenomesTab";
-
 import SearchProjectContainer from "@capsid/components/containers/SearchProjectContainer";
 import SearchSampleContainer from "@capsid/components/containers/SearchSampleContainer";
 import SearchAlignmentContainer from "@capsid/components/containers/SearchAlignmentContainer";
@@ -60,7 +58,22 @@ const aggConfig = {
     { displayName: "Disease", field: "cancer", type: "terms" },
     { displayName: "Source", field: "source", type: "terms" }
   ],
-  genomes: [{ displayName: "Genome Length", field: "length", type: "stats" }]
+  genomes: [{ displayName: "Genome Length", field: "length", type: "stats" }],
+  statistics: [
+    { displayName: "Genome Hits", field: "genomeHits", type: "stats" },
+    { displayName: "Gene Hits", field: "geneHits", type: "stats" },
+    { displayName: "Genome Coverage", field: "genomeCoverage", type: "stats" },
+    {
+      displayName: "Max Gene Coverage",
+      field: "geneCoverageMax",
+      type: "stats"
+    },
+    {
+      displayName: "Avg Gene Coverage",
+      field: "geneCoverageAvg",
+      type: "stats"
+    }
+  ]
 };
 
 const defaultSQON = { op: "and", content: [] };
@@ -125,26 +138,39 @@ const TabLink = ({ tab, to, sqon, data, ...props }) => {
   );
 };
 
-const fetchBucketCounts = ({ client, sqon, config, setBucketCounts }) => {
-  let buckets = {};
-  Object.keys(config).map(entity =>
-    config[entity].filter(x => x.type === "terms").map(({ field, type }) =>
-      client
-        .query({
-          query: SearchAggCountQuery,
-          variables: {
-            query: JSON.stringify(sqon),
-            aggs: JSON.stringify(config),
-            agg: JSON.stringify({ entity, field, type })
-          }
-        })
-        .then(({ data: { items } }) => {
-          buckets[namespaceField({ entity, field })] = items.buckets;
-          setBucketCounts(buckets);
-        })
-        .catch(err => console.error(err))
+const fetchAggData = async ({
+  client,
+  sqon,
+  config,
+  setAggData,
+  setAggsLoading
+}) => {
+  setAggsLoading(true);
+  let aggData = {};
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  await Promise.all(
+    Object.keys(config).map(async entity =>
+      Promise.all(
+        config[entity].map(async ({ field, type }) =>
+          client
+            .query({
+              query: SearchAggCountQuery,
+              variables: {
+                query: JSON.stringify(sqon),
+                aggs: JSON.stringify(config),
+                agg: JSON.stringify({ entity, field, type })
+              }
+            })
+            .then(({ data: { items } }) => {
+              aggData[namespaceField({ entity, field })] = items;
+            })
+            .catch(err => console.error(err))
+        )
+      )
     )
   );
+  setAggData(aggData);
+  setAggsLoading(false);
 };
 
 const enhance = compose(
@@ -154,11 +180,18 @@ const enhance = compose(
   withPropsOnChange(["params"], ({ params }) => ({
     sqon: params.sqon ? decode(params.sqon) : defaultSQON
   })),
-  withState("bucketCounts", "setBucketCounts", {}),
+  withState("aggsLoading", "setAggsLoading", false),
+  withState("aggData", "setAggData", {}),
   withPropsOnChange(
     (props, nextProps) => !_.isEqual(props.sqon, nextProps.sqon),
-    ({ sqon, client, setBucketCounts }) =>
-      fetchBucketCounts({ client, sqon, config: aggConfig, setBucketCounts })
+    ({ sqon, client, setAggData, setAggsLoading }) =>
+      fetchAggData({
+        client,
+        sqon,
+        config: aggConfig,
+        setAggData,
+        setAggsLoading
+      })
   )
 );
 
@@ -166,8 +199,8 @@ const Search = ({
   match: { params: { tab } },
   params: { filter = "", ...params },
   sqon,
-  bucketCounts,
-  setBucketCounts,
+  aggData,
+  aggsLoading,
   Tab = tabs[tab],
   Container = containers[tab],
   sort = params.sort ? _.flatten([params.sort]) : defaultSort[tab]
@@ -183,9 +216,8 @@ const Search = ({
       <Flex>
         <Box width={[1 / 2, 1 / 4, 1 / 6]}>
           <AggPanel
-            bucketCounts={bucketCounts}
-            setBucketCounts={setBucketCounts}
-            loading={loading}
+            loading={aggsLoading}
+            aggData={aggData}
             search={search}
             config={aggConfig}
             sqon={sqon}
