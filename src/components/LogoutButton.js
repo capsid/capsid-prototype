@@ -6,8 +6,8 @@ import { withApollo } from "react-apollo";
 import { logout } from "@capsid/reducers/reduceUser";
 import { logoutAll } from "@capsid/services/login";
 
-const Logout = ({ dispatch, client, history }) => (
-  <button
+const Logout = ({ dispatch, client, history, Component = "button" }) => (
+  <Component
     onClick={() => {
       logoutAll().then(() => {
         client.resetStore();
@@ -17,7 +17,7 @@ const Logout = ({ dispatch, client, history }) => (
     }}
   >
     Logout
-  </button>
+  </Component>
 );
 
 export default connect()(withRouter(withApollo(Logout)));

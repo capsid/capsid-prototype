@@ -6,14 +6,13 @@ import { withRouter } from "react-router";
 
 import NotFound from "@capsid/components/NotFound";
 import AuthRedirect from "@capsid/components/AuthRedirect";
-import Header from "@capsid/components/Header";
+import Navbar from "@capsid/components/Navbar";
 import Login from "@capsid/components/Login";
 import Alignment from "@capsid/components/Alignment";
 import Genome from "@capsid/components/Genome";
 import Project from "@capsid/components/Project";
 import Sample from "@capsid/components/Sample";
 import Search from "@capsid/components/Search";
-import { LoggedIn } from "@capsid/components/access";
 
 import history from "@capsid/services/history";
 
@@ -34,9 +33,7 @@ const Content = styled("div")`
 // https://github.com/ReactTraining/react-router/issues/4671
 const AppWithRouter = withRouter(() => (
   <div>
-    <LoggedIn>
-      <Header />
-    </LoggedIn>
+    <Navbar />
     <Content>
       <Switch>
         <ProtectedRoute
