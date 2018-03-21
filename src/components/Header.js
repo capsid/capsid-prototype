@@ -41,7 +41,6 @@ const Header = ({ profile, location: { pathname } }) => (
   <div>
     <HeaderContainer>
       <div>
-        <NavLink to="/">Capsid 2.0</NavLink>
         <HeaderNavLink isActive={isActive("search")} to="/search/projects">
           Search
         </HeaderNavLink>

@@ -7,17 +7,17 @@ import { withRouter } from "react-router";
 import NotFound from "@capsid/components/NotFound";
 import AuthRedirect from "@capsid/components/AuthRedirect";
 import Header from "@capsid/components/Header";
-import Home from "@capsid/components/Home";
 import Login from "@capsid/components/Login";
 import Alignment from "@capsid/components/Alignment";
 import Genome from "@capsid/components/Genome";
 import Project from "@capsid/components/Project";
 import Sample from "@capsid/components/Sample";
 import Search from "@capsid/components/Search";
-
 import { LoggedIn } from "@capsid/components/access";
 
 import history from "@capsid/services/history";
+
+import "@blueprintjs/core/dist/blueprint.css";
 
 const ProtectedRoute = connect(state => ({
   token: state.user.token
@@ -39,7 +39,11 @@ const AppWithRouter = withRouter(() => (
     </LoggedIn>
     <Content>
       <Switch>
-        <ProtectedRoute exact path="/" component={Home} />
+        <ProtectedRoute
+          exact
+          path="/"
+          component={() => <Redirect to="/search/projects" />}
+        />
         <ProtectedRoute exact path="/search/:tab" component={Search} />
         <ProtectedRoute exact path="/projects/:id" component={Project} />
         <ProtectedRoute exact path="/samples/:id" component={Sample} />
