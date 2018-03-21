@@ -14,9 +14,11 @@ const Query = gql`
     search(query: $query, aggs: $aggs) {
       projects {
         total
+        aggs
       }
       samples {
         total
+        aggs
         endCursor
         hasStatistics
         hits(size: $size, after: $after, sort: $sort) {
@@ -35,9 +37,14 @@ const Query = gql`
       }
       alignments {
         total
+        aggs
       }
       genomes {
         total
+        aggs
+      }
+      statistics {
+        aggs
       }
     }
   }

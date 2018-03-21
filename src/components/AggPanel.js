@@ -11,45 +11,20 @@ import {
 
 import { namespaceField } from "@capsid/utils";
 
-const parseData = ({ data: { stats, ...data } }) => {
-  if (!stats) return data;
-  return {
-    stats: Object.keys(stats).reduce((obj, k) => ({
-      ...obj,
-      [k]:
-        stats[k] > 0 && stats[k] < 1
-          ? Math.round(stats[k] * 100) / 100
-          : stats[k]
-    }))
-  };
+const parseAggs = ({ field, type, aggs }) => {
+  if (!aggs) return {};
+  const aggRoot = aggs[`${field}:global`]
+    ? aggs[`${field}:global`][`${field}:filtered`]
+    : aggs;
+  return type === "stats"
+    ? { stats: aggRoot[`${field}:stats`] }
+    : aggRoot[field];
 };
 
 const enhance = compose(withApollo);
 
-const AggPanel = ({
-  client,
-  config,
-  search,
-  sqon,
-  updateSQON,
-  aggData,
-  loading
-}) => (
-  <div style={{ position: "relative" }}>
-    {loading && (
-      <div
-        style={{
-          position: "absolute",
-          zIndex: 1,
-          top: 0,
-          left: 0,
-          backgroundColor: "gray",
-          height: "100%",
-          width: "100%",
-          opacity: 0.5
-        }}
-      />
-    )}
+const AggPanel = ({ client, config, search, sqon, updateSQON, aggData }) => (
+  <div>
     {_.flatten(
       Object.keys(config).map(k => config[k].map(x => ({ ...x, entity: k })))
     ).map(
@@ -58,11 +33,14 @@ const AggPanel = ({
         entity,
         field,
         type,
+        isPercentage,
         namespacedField = namespaceField({ entity, field }),
-        data = parseData({
+        data = parseAggs({
+          field,
           type,
-          data: aggData[namespacedField] || (search[entity] || {}).aggs || {}
+          aggs: (aggData[namespacedField] || search[entity] || {}).aggs
         }),
+        shouldStripBucketCounts = !(aggData[namespacedField] || {}).aggs,
         key = JSON.stringify({ namespacedField, data })
       }) =>
         type === "terms" ? (
@@ -70,7 +48,11 @@ const AggPanel = ({
             key={key}
             field={namespacedField}
             displayName={displayName}
-            buckets={data.buckets}
+            buckets={
+              data.buckets && shouldStripBucketCounts
+                ? data.buckets.map(({ key }) => ({ key }))
+                : data.buckets
+            }
             handleValueClick={({ generateNextSQON }) =>
               updateSQON(generateNextSQON(sqon))
             }
@@ -88,19 +70,23 @@ const AggPanel = ({
             field={namespacedField}
             displayName={displayName}
             stats={data.stats || {}}
+            {...isPercentage && {
+              step: 0.01,
+              formatLabel: value => Math.round(value * 100) / 100
+            }}
             value={{
               min:
                 currentFieldValue({
                   sqon,
                   dotField: namespacedField,
                   op: ">="
-                }) || data.min,
+                }) || (data.stats || {}).min,
               max:
                 currentFieldValue({
                   sqon,
                   dotField: namespacedField,
                   op: "<="
-                }) || data.max
+                }) || (data.stats || {}).max
             }}
             handleChange={({ generateNextSQON }) =>
               updateSQON(generateNextSQON(sqon))

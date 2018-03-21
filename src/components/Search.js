@@ -62,16 +62,23 @@ const aggConfig = {
   statistics: [
     { displayName: "Genome Hits", field: "genomeHits", type: "stats" },
     { displayName: "Gene Hits", field: "geneHits", type: "stats" },
-    { displayName: "Genome Coverage", field: "genomeCoverage", type: "stats" },
     {
-      displayName: "Max Gene Coverage",
-      field: "geneCoverageMax",
-      type: "stats"
+      displayName: "% Genome Coverage",
+      field: "genomeCoverage",
+      type: "stats",
+      isPercentage: true
     },
     {
-      displayName: "Avg Gene Coverage",
+      displayName: "% Max Gene Coverage",
+      field: "geneCoverageMax",
+      type: "stats",
+      isPercentage: true
+    },
+    {
+      displayName: "% Avg Gene Coverage",
       field: "geneCoverageAvg",
-      type: "stats"
+      type: "stats",
+      isPercentage: true
     }
   ]
 };
@@ -138,39 +145,29 @@ const TabLink = ({ tab, to, sqon, data, ...props }) => {
   );
 };
 
-const fetchAggData = async ({
-  client,
-  sqon,
-  config,
-  setAggData,
-  setAggsLoading
-}) => {
-  setAggsLoading(true);
+const fetchAggData = async ({ client, sqon, config, setAggData }) => {
   let aggData = {};
   await new Promise(resolve => setTimeout(resolve, 1500));
-  await Promise.all(
-    Object.keys(config).map(async entity =>
-      Promise.all(
-        config[entity].map(async ({ field, type }) =>
-          client
-            .query({
-              query: SearchAggCountQuery,
-              variables: {
-                query: JSON.stringify(sqon),
-                aggs: JSON.stringify(config),
-                agg: JSON.stringify({ entity, field, type })
-              }
-            })
-            .then(({ data: { items } }) => {
-              aggData[namespaceField({ entity, field })] = items;
-            })
-            .catch(err => console.error(err))
-        )
+  Object.keys(config).map(entity =>
+    config[entity]
+      .filter(({ type }) => type === "terms")
+      .map(({ field, type }) =>
+        client
+          .query({
+            query: SearchAggCountQuery,
+            variables: {
+              query: JSON.stringify(sqon),
+              aggs: JSON.stringify(config),
+              agg: JSON.stringify({ entity, field, type })
+            }
+          })
+          .then(({ data: { items } }) => {
+            aggData[namespaceField({ entity, field })] = items;
+            setAggData(aggData);
+          })
+          .catch(err => console.error(err))
       )
-    )
   );
-  setAggData(aggData);
-  setAggsLoading(false);
 };
 
 const enhance = compose(
@@ -180,18 +177,11 @@ const enhance = compose(
   withPropsOnChange(["params"], ({ params }) => ({
     sqon: params.sqon ? decode(params.sqon) : defaultSQON
   })),
-  withState("aggsLoading", "setAggsLoading", false),
   withState("aggData", "setAggData", {}),
   withPropsOnChange(
     (props, nextProps) => !_.isEqual(props.sqon, nextProps.sqon),
-    ({ sqon, client, setAggData, setAggsLoading }) =>
-      fetchAggData({
-        client,
-        sqon,
-        config: aggConfig,
-        setAggData,
-        setAggsLoading
-      })
+    ({ sqon, client, setAggData }) =>
+      fetchAggData({ client, sqon, config: aggConfig, setAggData })
   )
 );
 
@@ -200,7 +190,6 @@ const Search = ({
   params: { filter = "", ...params },
   sqon,
   aggData,
-  aggsLoading,
   Tab = tabs[tab],
   Container = containers[tab],
   sort = params.sort ? _.flatten([params.sort]) : defaultSort[tab]
@@ -216,7 +205,6 @@ const Search = ({
       <Flex>
         <Box width={[1 / 2, 1 / 4, 1 / 6]}>
           <AggPanel
-            loading={aggsLoading}
             aggData={aggData}
             search={search}
             config={aggConfig}
