@@ -3,13 +3,13 @@ import { compose } from "recompose";
 import { connect } from "react-redux";
 import { withApollo } from "react-apollo";
 import { withRouter } from "react-router";
+import { Card } from "@blueprintjs/core";
+import { Flex, Box } from "grid-styled";
 
-import { allRedirectUris } from "@capsid/common/injectGlobals";
 import { logoutAll } from "@capsid/services/login";
 import { login } from "@capsid/reducers/reduceUser";
 import { withParams } from "@capsid/utils";
 
-import RedirectLogin from "@capsid/components/RedirectLogin";
 import { Login as LoginQuery } from "@capsid/components/queries";
 
 const gapi = global.gapi;
@@ -63,25 +63,30 @@ class Login extends Component {
   }
 
   render() {
-    let { shouldNotRedirect } = this.props;
     let { validation, networkError } = this.state;
-    const renderSocialLoginButtons =
-      shouldNotRedirect || allRedirectUris.includes(window.location.origin);
 
     return (
-      <div className="Login">
-        <h1>Capsid Login</h1>
-        {networkError ? (
-          <div>Connection to Capsid API failed</div>
-        ) : renderSocialLoginButtons ? (
-          <div>
-            {validation.map(x => <div key={x}>{x}</div>)}
-            <div key="google" id="googleSignin" />
-          </div>
-        ) : (
-          <RedirectLogin onLogin={this.login} />
-        )}
-      </div>
+      <Flex justifyContent="center">
+        <Box mt={200} width={500}>
+          <Card>
+            <Flex
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <h4>Please Login</h4>
+              {networkError ? (
+                <div>Connection to Capsid API failed</div>
+              ) : (
+                <div>
+                  {validation.map(x => <div key={x}>{x}</div>)}
+                  <div key="google" id="googleSignin" />
+                </div>
+              )}
+            </Flex>
+          </Card>
+        </Box>
+      </Flex>
     );
   }
 }
