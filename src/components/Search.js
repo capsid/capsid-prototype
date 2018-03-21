@@ -5,10 +5,11 @@ import { withApollo } from "react-apollo";
 import { withRouter } from "react-router";
 import queryString from "query-string";
 import { Flex, Box } from "grid-styled";
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import _, { debounce } from "lodash";
 import urlJoin from "url-join";
 import capitalize from "capitalize";
+import { Tabs2, Tab2 } from "@blueprintjs/core";
 
 import { CurrentSQON } from "@arranger/components/dist/Arranger/CurrentSQON";
 import { currentFilterValue } from "@arranger/components/dist/SQONView/utils";
@@ -132,18 +133,11 @@ const CountLink = ({ sqon, tab }) => ({
   );
 };
 
-const TabLink = ({ tab, to, sqon, data, ...props }) => {
-  return (
-    <NavLink
-      isActive={() => to === tab}
-      activeStyle={{ color: "red" }}
-      to={nextTabLocation({ tab: to, sqon })}
-      {...props}
-    >
-      {capitalize(to)} ({(data[to] || {}).total})
-    </NavLink>
-  );
-};
+const handleTabChange = ({ sqon, history }) => tab =>
+  history.push(nextTabLocation({ tab, sqon }));
+
+const tabTitle = ({ tab, search }) =>
+  `${capitalize(tab)} (${(search[tab] || {}).total || ""})`;
 
 const fetchAggData = async ({ client, sqon, config, setAggData }) => {
   let aggData = {};
@@ -186,6 +180,7 @@ const enhance = compose(
 );
 
 const Search = ({
+  history,
   match: { params: { tab } },
   params: { filter = "", ...params },
   sqon,
@@ -213,10 +208,16 @@ const Search = ({
           />
         </Box>
         <Box width={[1 / 2, 3 / 4, 5 / 6]}>
-          <Box>
-            {["projects", "samples", "alignments", "genomes"].map(x => (
-              <TabLink key={x} to={x} tab={tab} sqon={sqon} data={search} />
-            ))}
+          <Box ml={3} mb={1}>
+            <Tabs2
+              id="tabs"
+              selectedTabId={tab}
+              onChange={handleTabChange({ sqon, history })}
+            >
+              {["projects", "samples", "alignments", "genomes"].map(x => (
+                <Tab2 id={x} title={tabTitle({ tab: x, search })} />
+              ))}
+            </Tabs2>
           </Box>
           <CurrentSQON
             sqon={sqon}

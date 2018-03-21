@@ -1,8 +1,8 @@
 import React from "react";
 import { Router, Switch, Redirect, Route } from "react-router-dom";
 import { connect } from "react-redux";
-import styled from "react-emotion";
 import { withRouter } from "react-router";
+import { Box } from "grid-styled";
 
 import NotFound from "@capsid/components/NotFound";
 import AuthRedirect from "@capsid/components/AuthRedirect";
@@ -25,16 +25,12 @@ const ProtectedRoute = connect(state => ({
     token ? <Route {...props} /> : <Redirect to="/login" />
 );
 
-const Content = styled("div")`
-  padding: 20px;
-`;
-
 // AppWithRouter required to enable children to re-render on location change
 // https://github.com/ReactTraining/react-router/issues/4671
 const AppWithRouter = withRouter(() => (
   <div>
     <Navbar />
-    <Content>
+    <Box p={2}>
       <Switch>
         <ProtectedRoute
           exact
@@ -51,7 +47,7 @@ const AppWithRouter = withRouter(() => (
         <Route exact path="/redirected" component={() => null} />
         <Route component={NotFound} />
       </Switch>
-    </Content>
+    </Box>
   </div>
 ));
 

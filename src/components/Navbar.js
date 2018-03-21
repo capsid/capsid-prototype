@@ -3,7 +3,7 @@ import { compose } from "recompose";
 import { connect } from "react-redux";
 import { withRouter } from "react-router";
 import { NavLink } from "react-router-dom";
-import styled from "react-emotion";
+import { Box } from "grid-styled";
 import {
   Button,
   Icon,
@@ -26,10 +26,6 @@ const ActiveStyleNavLink = props => (
   <NavLink activeStyle={{ color: "red" }} {...props} />
 );
 
-const UserEmail = styled("div")`
-  margin-left: 10px;
-`;
-
 const rootPath = x => x.split("/").filter(Boolean)[0];
 const isActive = x => (m, l) => rootPath(l.pathname) === x;
 
@@ -48,7 +44,7 @@ const Header = ({ profile, location: { pathname } }) => (
       <NavbarGroup align="right">
         <NavbarDivider />
         <Icon iconName="person" />
-        <UserEmail>{profile && profile.email}</UserEmail>
+        <Box ml={2}>{profile && profile.email}</Box>
         <NavbarDivider />
         <LogoutButton
           Component={props => (
