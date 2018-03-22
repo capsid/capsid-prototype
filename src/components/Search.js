@@ -9,8 +9,9 @@ import { Link } from "react-router-dom";
 import _, { debounce } from "lodash";
 import urlJoin from "url-join";
 import capitalize from "capitalize";
-import { Button, Tabs2, Tab2 } from "@blueprintjs/core";
+import { Tabs2, Tab2 } from "@blueprintjs/core";
 
+import Button from "@capsid/components/Button";
 import { CurrentSQON } from "@arranger/components/dist/Arranger/CurrentSQON";
 import { currentFilterValue } from "@arranger/components/dist/SQONView/utils";
 import "@arranger/components/public/themeStyles/beagle/beagle.css"; // TODO
@@ -247,18 +248,10 @@ const Search = ({
             />
           </Box>
           <Flex justifyContent="space-between">
-            <Button
-              className="pt-minimal"
-              iconName="key-enter"
-              onClick={() => refetch()}
-            >
+            <Button iconName="key-enter" onClick={() => refetch()}>
               First Page
             </Button>
-            <Button
-              className="pt-minimal"
-              iconName="arrow-right"
-              onClick={() => loadMore(tab)}
-            >
+            <Button iconName="arrow-right" onClick={() => loadMore(tab)}>
               Next Page
             </Button>
           </Flex>

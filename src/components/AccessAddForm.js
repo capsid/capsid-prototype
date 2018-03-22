@@ -1,5 +1,6 @@
 import React from "react";
 import { compose, withState } from "recompose";
+import { Button, FormGroup, Intent } from "@blueprintjs/core";
 
 import {
   accessesUpdateCache,
@@ -16,7 +17,8 @@ const addUser = async ({
   mutate,
   projectId,
   setLoading,
-  setValidation
+  setValidation,
+  onAdd
 }) => {
   event.preventDefault();
   setLoading(true);
@@ -34,10 +36,19 @@ const addUser = async ({
   })
     .then(() => {
       form.reset();
-      setValidation([]);
+      setValidation({});
+      onAdd && onAdd();
     })
     .catch(({ graphQLErrors, networkError }) => {
-      setValidation(graphQLErrors.map(({ message }) => message));
+      setValidation(
+        graphQLErrors.reduce((obj, { message }) => {
+          const [key, value] = message.split(":");
+          return {
+            ...obj,
+            [key]: obj[key] ? [...obj[key], value] : [value]
+          };
+        }, {})
+      );
       networkError && console.error(networkError);
     });
   setLoading(false);
@@ -45,37 +56,74 @@ const addUser = async ({
 
 const enhance = compose(
   withState("loading", "setLoading", false),
-  withState("validation", "setValidation", [])
+  withState("validation", "setValidation", {})
 );
 
-const AccessAddForm = enhance(
-  ({ projectId, loading, setLoading, validation, setValidation }) => (
-    <AccessAddContainer>
-      {({ mutate }) => (
-        <form
-          onSubmit={event =>
-            addUser({ event, mutate, projectId, setLoading, setValidation })
-          }
+const AccessAddForm = ({
+  projectId,
+  loading,
+  setLoading,
+  validation,
+  setValidation,
+  onAdd
+}) => (
+  <AccessAddContainer>
+    {({ mutate }) => (
+      <form
+        onSubmit={event =>
+          addUser({
+            event,
+            mutate,
+            projectId,
+            setLoading,
+            setValidation,
+            onAdd
+          })
+        }
+      >
+        <h6>Add a User</h6>
+        <FormGroup
+          label="Role"
+          {...validation.access && {
+            intent: Intent.DANGER,
+            helperText: validation.access
+          }}
+          labelFor="access"
+          required={true}
         >
-          <ul>{validation.map(x => <li key={x}>{x}</li>)}</ul>
-          <div>
-            <label>Role: </label>
-            <select name="access">
+          <div className="pt-select">
+            <select id="access" name="access">
               <option />
               <option value="admin">Admin</option>
               <option value="write">Write</option>
               <option value="read">Read</option>
             </select>
           </div>
-          <div>
-            <label>Email: </label>
-            <input name="userEmail" type="text" placeholder="Email" />
-          </div>
-          <input type="submit" value="Add User" disabled={loading} />
-        </form>
-      )}
-    </AccessAddContainer>
-  )
+        </FormGroup>
+        <FormGroup
+          label="Email"
+          labelFor="userEmail"
+          {...validation.userEmail && {
+            intent: Intent.DANGER,
+            helperText: validation.userEmail
+          }}
+          required={true}
+        >
+          <input
+            className={`pt-input ${
+              validation.userEmail ? "pt-intent-danger" : ""
+            }`}
+            name="userEmail"
+            type="text"
+            placeholder="Email"
+          />
+        </FormGroup>
+        <Button type="submit" disabled={loading}>
+          Add User
+        </Button>
+      </form>
+    )}
+  </AccessAddContainer>
 );
 
-export default AccessAddForm;
+export default enhance(AccessAddForm);

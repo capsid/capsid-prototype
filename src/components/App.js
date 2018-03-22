@@ -2,6 +2,7 @@ import React from "react";
 import { Router, Switch, Redirect, Route } from "react-router-dom";
 import { connect } from "react-redux";
 import { withRouter } from "react-router";
+import { LastLocationProvider } from "react-router-last-location";
 import { Box } from "grid-styled";
 
 import NotFound from "@capsid/components/NotFound";
@@ -53,7 +54,9 @@ const AppWithRouter = withRouter(() => (
 
 const App = () => (
   <Router history={history}>
-    <AppWithRouter />
+    <LastLocationProvider>
+      <AppWithRouter />
+    </LastLocationProvider>
   </Router>
 );
 
