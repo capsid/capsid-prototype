@@ -1,5 +1,6 @@
 import React from "react";
 import ReactTable from "react-table";
+import { Box } from "grid-styled";
 
 import TextFilter from "@arranger/components/dist/TextFilter";
 
@@ -19,12 +20,14 @@ const DataTable = ({
   updateSort
 }) => (
   <div>
-    <TextFilter
-      value={filter}
-      onChange={({ value, generateNextSQON }) =>
-        updateFilter({ value, generateNextSQON, filterColumns })
-      }
-    />
+    <Box mb={1}>
+      <TextFilter
+        value={filter}
+        onChange={({ value, generateNextSQON }) =>
+          updateFilter({ value, generateNextSQON, filterColumns })
+        }
+      />
+    </Box>
     <ReactTable
       data={data}
       columns={columns}

@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import _, { debounce } from "lodash";
 import urlJoin from "url-join";
 import capitalize from "capitalize";
-import { Tabs2, Tab2 } from "@blueprintjs/core";
+import { Button, Tabs2, Tab2 } from "@blueprintjs/core";
 
 import { CurrentSQON } from "@arranger/components/dist/Arranger/CurrentSQON";
 import { currentFilterValue } from "@arranger/components/dist/SQONView/utils";
@@ -32,6 +32,47 @@ import SearchSampleContainer from "@capsid/components/containers/SearchSampleCon
 import SearchAlignmentContainer from "@capsid/components/containers/SearchAlignmentContainer";
 import SearchGenomeContainer from "@capsid/components/containers/SearchGenomeContainer";
 import { SearchAggCount as SearchAggCountQuery } from "@capsid/components/queries";
+
+const { decode, encode } = rison;
+
+const updateSQON = nextSQON => updateParams({ sqon: encode(nextSQON) });
+
+const debouncedUpdateSQON = debounce(updateSQON, 500);
+
+const defaultSQON = { op: "and", content: [] };
+
+const nextTabLocation = ({ tab, sqon }) => ({
+  pathname: urlJoin("/search", tab),
+  search: queryString.stringify({
+    sqon: encode(sqon),
+    filter: currentFilterValue(sqon, tab)
+  })
+});
+
+const fetchAggData = async ({ client, sqon, config, setAggData }) => {
+  let aggData = {};
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  Object.keys(config).map(entity =>
+    config[entity]
+      .filter(({ type }) => type === "terms")
+      .map(({ field, type }) =>
+        client
+          .query({
+            query: SearchAggCountQuery,
+            variables: {
+              query: JSON.stringify(sqon),
+              aggs: JSON.stringify(config),
+              agg: JSON.stringify({ entity, field, type })
+            }
+          })
+          .then(({ data: { items } }) => {
+            aggData[namespaceField({ entity, field })] = items;
+            setAggData(aggData);
+          })
+          .catch(err => console.error(err))
+      )
+  );
+};
 
 const containers = {
   projects: SearchProjectContainer,
@@ -84,22 +125,6 @@ const aggConfig = {
   ]
 };
 
-const defaultSQON = { op: "and", content: [] };
-
-const { decode, encode } = rison;
-
-const updateSQON = nextSQON => updateParams({ sqon: encode(nextSQON) });
-
-const debouncedUpdateSQON = debounce(updateSQON, 500);
-
-const nextTabLocation = ({ tab, sqon }) => ({
-  pathname: urlJoin("/search", tab),
-  search: queryString.stringify({
-    sqon: encode(sqon),
-    filter: currentFilterValue(sqon, tab)
-  })
-});
-
 const CellLink = ({ args: { row, value }, to, accessor = "id" }) => (
   <Link to={`/${to}/${row._original[accessor]}`}>{value}</Link>
 );
@@ -130,37 +155,6 @@ const CountLink = ({ sqon, tab }) => ({
     >
       {value}
     </Link>
-  );
-};
-
-const handleTabChange = ({ sqon, history }) => tab =>
-  history.push(nextTabLocation({ tab, sqon }));
-
-const tabTitle = ({ tab, search }) =>
-  `${capitalize(tab)} (${(search[tab] || {}).total || ""})`;
-
-const fetchAggData = async ({ client, sqon, config, setAggData }) => {
-  let aggData = {};
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  Object.keys(config).map(entity =>
-    config[entity]
-      .filter(({ type }) => type === "terms")
-      .map(({ field, type }) =>
-        client
-          .query({
-            query: SearchAggCountQuery,
-            variables: {
-              query: JSON.stringify(sqon),
-              aggs: JSON.stringify(config),
-              agg: JSON.stringify({ entity, field, type })
-            }
-          })
-          .then(({ data: { items } }) => {
-            aggData[namespaceField({ entity, field })] = items;
-            setAggData(aggData);
-          })
-          .catch(err => console.error(err))
-      )
   );
 };
 
@@ -198,7 +192,7 @@ const Search = ({
   >
     {({ data: { search, loading, refetch }, loadMore }) => (
       <Flex>
-        <Box width={[1 / 2, 1 / 4, 1 / 6]}>
+        <Box width={[1 / 2, 1 / 4, 1 / 6, 1 / 8]}>
           <AggPanel
             aggData={aggData}
             search={search}
@@ -207,26 +201,31 @@ const Search = ({
             updateSQON={debouncedUpdateSQON}
           />
         </Box>
-        <Box width={[1 / 2, 3 / 4, 5 / 6]}>
-          <Box ml={3} mb={1}>
+        <Box width={[1 / 2, 3 / 4, 5 / 6, 7 / 8]} ml={2}>
+          <Box mb={1}>
             <Tabs2
               id="tabs"
               selectedTabId={tab}
-              onChange={handleTabChange({ sqon, history })}
+              onChange={tab => history.push(nextTabLocation({ tab, sqon }))}
             >
               {["projects", "samples", "alignments", "genomes"].map(x => (
-                <Tab2 id={x} title={tabTitle({ tab: x, search })} />
+                <Tab2
+                  id={x}
+                  title={`${capitalize(x)} (${(search[x] || {}).total || ""})`}
+                />
               ))}
             </Tabs2>
           </Box>
-          <CurrentSQON
-            sqon={sqon}
-            setSQON={nextSQON => {
-              updateParams({ filter: currentFilterValue(nextSQON, tab) });
-              updateSQON(nextSQON);
-            }}
-          />
-          <Box>
+          <Box mb={1}>
+            <CurrentSQON
+              sqon={sqon}
+              setSQON={nextSQON => {
+                updateParams({ filter: currentFilterValue(nextSQON, tab) });
+                updateSQON(nextSQON);
+              }}
+            />
+          </Box>
+          <Box mb={1}>
             <Tab
               hasStatistics={search[tab].hasStatistics}
               hits={search[tab].hits}
@@ -246,9 +245,23 @@ const Search = ({
               CellLink={CellLink}
               CountLink={CountLink({ sqon, tab })}
             />
-            <button onClick={() => refetch()}>First Page</button>
-            <button onClick={() => loadMore(tab)}>Next Page</button>
           </Box>
+          <Flex justifyContent="space-between">
+            <Button
+              className="pt-minimal"
+              iconName="key-enter"
+              onClick={() => refetch()}
+            >
+              First Page
+            </Button>
+            <Button
+              className="pt-minimal"
+              iconName="arrow-right"
+              onClick={() => loadMore(tab)}
+            >
+              Next Page
+            </Button>
+          </Flex>
         </Box>
       </Flex>
     )}

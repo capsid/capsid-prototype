@@ -1,5 +1,4 @@
 import React from "react";
-import { compose } from "recompose";
 import { connect } from "react-redux";
 import { withRouter } from "react-router";
 import { NavLink } from "react-router-dom";
@@ -15,29 +14,29 @@ import {
 import { LoggedIn } from "@capsid/components/access";
 import LogoutButton from "@capsid/components/LogoutButton";
 
-const enhance = compose(
-  withRouter,
-  connect(state => ({
-    profile: state.user.profile
-  }))
+const EnhancedNavLink = withRouter(
+  ({
+    location,
+    to,
+    children,
+    rootPath = x => x.split("/").filter(Boolean)[0],
+    isActive = (x, l) => rootPath(l.pathname) === x
+  }) => (
+    <NavLink to={to}>
+      <Button className="pt-minimal" active={isActive(rootPath(to), location)}>
+        {children}
+      </Button>
+    </NavLink>
+  )
 );
 
-const ActiveStyleNavLink = props => (
-  <NavLink activeStyle={{ color: "red" }} {...props} />
-);
-
-const rootPath = x => x.split("/").filter(Boolean)[0];
-const isActive = x => (m, l) => rootPath(l.pathname) === x;
-
-const Header = ({ profile, location: { pathname } }) => (
+const Header = ({ profile }) => (
   <Navbar>
     <NavbarGroup>
-      <NavLink to="/">CaPSID</NavLink>
+      <EnhancedNavLink to="/">CaPSID</EnhancedNavLink>
       <NavbarDivider />
       <LoggedIn>
-        <ActiveStyleNavLink isActive={isActive("search")} to="/search/projects">
-          Search
-        </ActiveStyleNavLink>
+        <EnhancedNavLink to="/search/projects">Search</EnhancedNavLink>
       </LoggedIn>
     </NavbarGroup>
     <LoggedIn>
@@ -56,4 +55,6 @@ const Header = ({ profile, location: { pathname } }) => (
   </Navbar>
 );
 
-export default enhance(Header);
+export default connect(state => ({
+  profile: state.user.profile
+}))(Header);
