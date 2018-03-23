@@ -3,13 +3,12 @@ import { compose } from "recompose";
 import { connect } from "react-redux";
 import { withApollo } from "react-apollo";
 import { withRouter } from "react-router";
-import { Card } from "@blueprintjs/core";
-import { Flex, Box } from "grid-styled";
 
 import { logoutAll } from "@capsid/services/login";
 import { login } from "@capsid/reducers/reduceUser";
 import { withParams } from "@capsid/utils";
 
+import PageCenterBox from "@capsid/components/PageCenterBox";
 import { Login as LoginQuery } from "@capsid/components/queries";
 
 const gapi = global.gapi;
@@ -66,27 +65,17 @@ class Login extends Component {
     let { validation, networkError } = this.state;
 
     return (
-      <Flex justifyContent="center">
-        <Box mt={200} width={500}>
-          <Card>
-            <Flex
-              flexDirection="column"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <h4>Please Login</h4>
-              {networkError ? (
-                <div>Connection to Capsid API failed</div>
-              ) : (
-                <div>
-                  {validation.map(x => <div key={x}>{x}</div>)}
-                  <div key="google" id="googleSignin" />
-                </div>
-              )}
-            </Flex>
-          </Card>
-        </Box>
-      </Flex>
+      <PageCenterBox>
+        <h4>Please Login</h4>
+        {networkError ? (
+          <div>Connection to Capsid API failed</div>
+        ) : (
+          <div>
+            {validation.map(x => <div key={x}>{x}</div>)}
+            <div key="google" id="googleSignin" />
+          </div>
+        )}
+      </PageCenterBox>
     );
   }
 }

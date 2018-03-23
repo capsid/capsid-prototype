@@ -12,6 +12,7 @@ export const fragments = {
       cancer
       name
       version
+      projectLabel
     }
   `
 };
@@ -22,10 +23,8 @@ const Query = gql`
       _id
       updatedAt
       createdAt
+      projectId
       ...SampleDetails
-      project_ {
-        ...ProjectDetails
-      }
     }
   }
   ${fragments.details}

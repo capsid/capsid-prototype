@@ -1,1 +1,4 @@
-export default x => x.split("/").filter(Boolean)[0];
+export default x => {
+  const path = typeof x === "string" ? x : x.pathname;
+  return path.split("/").filter(Boolean)[0];
+};

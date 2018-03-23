@@ -9,7 +9,7 @@ import urlJoin from "url-join";
 import queryString from "query-string";
 
 import { apiRoot } from "@capsid/common/injectGlobals";
-import { history } from "@capsid/services";
+import { history, reduxStore } from "@capsid/services";
 
 const error = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors)
@@ -33,7 +33,7 @@ const error = onError(({ graphQLErrors, networkError }) => {
 });
 
 const context = setContext((_, { headers }) => ({
-  headers: { ...headers, token: localStorage.getItem("token") || "" }
+  headers: { ...headers, token: reduxStore.getState().user.token || "" }
 }));
 
 const persisted = createPersistedQueryLink();

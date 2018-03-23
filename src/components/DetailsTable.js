@@ -12,14 +12,29 @@ const DetailsTable = ({ item, keyMap }) => (
   <Box>
     <BorderedTable className="pt-table pt-striped">
       <tbody>
-        {Object.keys(keyMap).map(k => (
-          <tr>
-            <td>{keyMap[k]}</td>
-            <td>
-              {isUrl(item[k]) ? <a href={item[k]}>{item[k]}</a> : item[k]}
-            </td>
-          </tr>
-        ))}
+        {Object.keys(keyMap)
+          .map(k => ({
+            key: keyMap[k],
+            value:
+              item &&
+              item[k] &&
+              (Array.isArray(item[k]) ? item[k] : `${item[k]}`)
+          }))
+          .filter(x => x.value)
+          .map(({ key, value }) => (
+            <tr key={key}>
+              <td>{key}</td>
+              <td>
+                {Array.isArray(value) ? (
+                  value.join(", ")
+                ) : isUrl(value) ? (
+                  <a href={value}>{value}</a>
+                ) : (
+                  value
+                )}
+              </td>
+            </tr>
+          ))}
       </tbody>
     </BorderedTable>
   </Box>

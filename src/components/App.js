@@ -1,10 +1,13 @@
 import React from "react";
+import { compose } from "recompose";
 import { Router, Switch, Redirect, Route } from "react-router-dom";
 import { connect } from "react-redux";
 import { withRouter } from "react-router";
 import { LastLocationProvider } from "react-router-last-location";
 import { Box } from "grid-styled";
+import queryString from "query-string";
 
+import { encode } from "@capsid/utils";
 import NotFound from "@capsid/components/NotFound";
 import AuthRedirect from "@capsid/components/AuthRedirect";
 import Navbar from "@capsid/components/Navbar";
@@ -28,7 +31,13 @@ const ProtectedRoute = connect(state => ({
 
 // AppWithRouter required to enable children to re-render on location change
 // https://github.com/ReactTraining/react-router/issues/4671
-const AppWithRouter = withRouter(() => (
+const AppWithRouter = compose(
+  withRouter,
+  connect(state => ({
+    lastTab: state.search.lastTab,
+    lastSqon: state.search.lastSqon
+  }))
+)(({ lastTab, lastSqon }) => (
   <div>
     <Navbar />
     <Box p={2}>
@@ -36,12 +45,19 @@ const AppWithRouter = withRouter(() => (
         <ProtectedRoute
           exact
           path="/"
-          component={() => <Redirect to="/search/projects" />}
+          component={() => (
+            <Redirect
+              to={{
+                pathname: `/search/${lastTab || `projects`}`,
+                search: queryString.stringify({ sqon: encode(lastSqon) })
+              }}
+            />
+          )}
         />
         <ProtectedRoute exact path="/search/:tab" component={Search} />
-        <ProtectedRoute exact path="/projects/:id" component={Project} />
-        <ProtectedRoute exact path="/samples/:id" component={Sample} />
-        <ProtectedRoute exact path="/alignments/:id" component={Alignment} />
+        <ProtectedRoute exact path="/project/:id" component={Project} />
+        <ProtectedRoute exact path="/sample/:id" component={Sample} />
+        <ProtectedRoute exact path="/alignment/:id" component={Alignment} />
         <ProtectedRoute exact path="/genome/:id" component={Genome} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/auth-redirect" component={AuthRedirect} />
