@@ -18,21 +18,13 @@ const DetailsTable = ({ item, keyMap }) => (
             value:
               item &&
               item[k] &&
-              (Array.isArray(item[k]) ? item[k] : `${item[k]}`)
+              (Array.isArray(item[k]) ? item[k].join(`, `) : `${item[k]}`)
           }))
           .filter(x => x.value)
           .map(({ key, value }) => (
             <tr key={key}>
               <td>{key}</td>
-              <td>
-                {Array.isArray(value) ? (
-                  value.join(", ")
-                ) : isUrl(value) ? (
-                  <a href={value}>{value}</a>
-                ) : (
-                  value
-                )}
-              </td>
+              <td>{isUrl(value) ? <a href={value}>{value}</a> : value}</td>
             </tr>
           ))}
       </tbody>
