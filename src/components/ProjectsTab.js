@@ -19,7 +19,7 @@ const ProjectsTab = ({
       {
         Header: "Name",
         accessor: "name",
-        Cell: args => CellLink({ args, to: "projects", accessor: "id" })
+        Cell: args => CellLink({ args, to: "project", accessor: "id" })
       },
       { Header: "Label", accessor: "label" },
       {

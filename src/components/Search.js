@@ -1,6 +1,6 @@
 import React from "react";
-import rison from "rison";
 import { compose, withPropsOnChange, withState } from "recompose";
+import { connect } from "react-redux";
 import { withApollo } from "react-apollo";
 import { withRouter } from "react-router";
 import queryString from "query-string";
@@ -20,8 +20,11 @@ import {
   addInSQON,
   updateParams,
   withParams,
-  namespaceField
+  namespaceField,
+  encode,
+  decode
 } from "@capsid/utils";
+import { saveLastTab, saveLastSqon } from "@capsid/reducers/reduceSearch";
 
 import AggPanel from "@capsid/components/AggPanel";
 import ProjectsTab from "@capsid/components/ProjectsTab";
@@ -33,8 +36,6 @@ import SearchSampleContainer from "@capsid/components/containers/SearchSampleCon
 import SearchAlignmentContainer from "@capsid/components/containers/SearchAlignmentContainer";
 import SearchGenomeContainer from "@capsid/components/containers/SearchGenomeContainer";
 import { SearchAggCount as SearchAggCountQuery } from "@capsid/components/queries";
-
-const { decode, encode } = rison;
 
 const updateSQON = nextSQON => updateParams({ sqon: encode(nextSQON) });
 
@@ -163,14 +164,21 @@ const enhance = compose(
   withApollo,
   withRouter,
   withParams,
+  connect(),
   withPropsOnChange(["params"], ({ params }) => ({
     sqon: params.sqon ? decode(params.sqon) : defaultSQON
   })),
   withState("aggData", "setAggData", {}),
   withPropsOnChange(
+    (props, nextProps) => props.match.params.tab !== nextProps.match.params.tab,
+    ({ dispatch, match: { params: { tab } } }) => dispatch(saveLastTab(tab))
+  ),
+  withPropsOnChange(
     (props, nextProps) => !_.isEqual(props.sqon, nextProps.sqon),
-    ({ sqon, client, setAggData }) =>
-      fetchAggData({ client, sqon, config: aggConfig, setAggData })
+    ({ dispatch, sqon, client, setAggData }) => {
+      dispatch(saveLastSqon(sqon));
+      fetchAggData({ client, sqon, config: aggConfig, setAggData });
+    }
   )
 );
 
@@ -212,6 +220,7 @@ const Search = ({
               {["projects", "samples", "alignments", "genomes"].map(x => (
                 <Tab2
                   id={x}
+                  key={x}
                   title={`${capitalize(x)} (${(search[x] || {}).total || ""})`}
                 />
               ))}

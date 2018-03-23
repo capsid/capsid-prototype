@@ -3,35 +3,54 @@ import { withRouter } from "react-router";
 import { withLastLocation } from "react-router-last-location";
 import { Flex, Box } from "grid-styled";
 import { Spinner } from "@blueprintjs/core";
-import capitalize from "capitalize";
+import _ from "lodash";
 
-import { rootPath } from "@capsid/utils";
 import Button from "@capsid/components/Button";
+
+const stringifyLocation = location =>
+  !location
+    ? ""
+    : typeof location === "string"
+      ? location
+      : `${location.pathname}${location.search}`;
 
 const Page = ({
   children,
   header,
   history,
-  lastLocation = { pathname: "/search/jordan" },
-  loading
+  lastLocation,
+  loading,
+  actions = []
 }) => (
   <Flex justifyContent="center">
     <Box mt={4} width={[1, 1, 2 / 3, 1 / 2]}>
-      {loading && <Spinner />}
+      {loading && (
+        <Flex justifyContent="center">
+          <Spinner />
+        </Flex>
+      )}
       {!loading && (
         <Box>
           {header && <h4>{header}</h4>}
           {children}
-          {lastLocation && (
-            <Box mt={4}>
+          <Flex justifyContent="space-around" m={4}>
+            {_.uniqBy(
+              actions.map(({ location, ...x }) => ({
+                location: stringifyLocation(location),
+                ...x
+              })),
+              "location"
+            ).map(({ location, title, icon }) => (
               <Button
-                iconName="arrow-left"
-                onClick={() => history.push(lastLocation)}
+                key={location}
+                type="anchor"
+                href={location}
+                {...icon && { iconName: icon }}
               >
-                Back to {capitalize(rootPath(lastLocation.pathname))}
+                {title}
               </Button>
-            </Box>
-          )}
+            ))}
+          </Flex>
         </Box>
       )}
     </Box>

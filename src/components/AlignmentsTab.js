@@ -20,17 +20,17 @@ const AlignmentsTab = ({
         Header: "ID / Name",
         id: "name",
         accessor: x => x.name || x.id,
-        Cell: args => CellLink({ args, to: "alignments", accessor: "id" })
+        Cell: args => CellLink({ args, to: "alignment", accessor: "id" })
       },
       {
         Header: "Project",
         accessor: "projectLabel",
-        Cell: args => CellLink({ args, to: "projects", accessor: "projectId" })
+        Cell: args => CellLink({ args, to: "project", accessor: "projectId" })
       },
       {
         Header: "Sample",
         accessor: "sample",
-        Cell: args => CellLink({ args, to: "samples", accessor: "sampleId" })
+        Cell: args => CellLink({ args, to: "sample", accessor: "sampleId" })
       },
       { Header: "Aligner", accessor: "aligner" },
       { Header: "Platform", accessor: "platform" },

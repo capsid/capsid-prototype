@@ -1,38 +1,38 @@
 import u from "updeep";
 
-import { user as actions } from "@capsid/actions";
+import { search as actions } from "@capsid/actions";
 
 // ============================================================================
-// User Action Creators
+// Search Action Creators
 // ============================================================================
 
-export const login = ({ token, ...profile }) => ({
-  type: actions.LOGIN,
-  payload: { token, profile }
+export const saveLastTab = tab => ({
+  type: actions.SAVE_LAST_TAB,
+  payload: tab
 });
 
-export const logout = () => {
-  return { type: actions.LOGOUT };
-};
+export const saveLastSqon = sqon => ({
+  type: actions.SAVE_LAST_SQON,
+  payload: sqon
+});
 
 // ============================================================================
-// User Reducer
+// Search Reducer
 // ============================================================================
 
 const defaultState = {
-  token: null,
-  profile: null
+  lastSqon: null
 };
 
 export default function(state = defaultState, action) {
   let update;
   switch (action.type) {
-    case actions.LOGIN:
-      update = action.payload;
+    case actions.SAVE_LAST_SQON:
+      update = { lastSqon: action.payload };
       break;
 
-    case actions.LOGOUT:
-      update = { token: null, profile: null };
+    case actions.SAVE_LAST_TAB:
+      update = { lastTab: action.payload };
       break;
 
     default:

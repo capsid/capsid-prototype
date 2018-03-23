@@ -15,6 +15,8 @@ export const fragments = {
       version
       outfile
       infile
+      projectLabel
+      sample
     }
   `
 };
@@ -25,13 +27,9 @@ const Query = gql`
       _id
       updatedAt
       createdAt
+      projectId
+      sampleId
       ...AlignmentDetails
-      sample_ {
-        ...SampleDetails
-      }
-      project_ {
-        ...ProjectDetails
-      }
     }
   }
   ${fragments.details}

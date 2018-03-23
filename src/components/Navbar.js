@@ -5,8 +5,9 @@ import { withRouter } from "react-router";
 import { NavLink } from "react-router-dom";
 import { Box } from "grid-styled";
 import { Icon, Navbar, NavbarGroup, NavbarDivider } from "@blueprintjs/core";
+import queryString from "query-string";
 
-import { rootPath } from "@capsid/utils";
+import { encode, rootPath } from "@capsid/utils";
 import Button from "@capsid/components/Button";
 import { LoggedIn } from "@capsid/components/access";
 import LogoutButton from "@capsid/components/LogoutButton";
@@ -27,17 +28,26 @@ const EnhancedNavLink = withRouter(
 const enhance = compose(
   withRouter, // req'd so connect doesn't stop route change from re-render
   connect(state => ({
-    profile: state.user.profile
+    profile: state.user.profile,
+    lastTab: state.search.lastTab,
+    lastSqon: state.search.lastSqon
   }))
 );
 
-const Header = ({ profile }) => (
+const Header = ({ profile, lastTab, lastSqon }) => (
   <Navbar>
     <NavbarGroup>
       <EnhancedNavLink to="/">CaPSID</EnhancedNavLink>
       <NavbarDivider />
       <LoggedIn>
-        <EnhancedNavLink to="/search/projects">Search</EnhancedNavLink>
+        <EnhancedNavLink
+          to={{
+            pathname: `/search/${lastTab || `projects`}`,
+            search: queryString.stringify({ sqon: encode(lastSqon) })
+          }}
+        >
+          Search
+        </EnhancedNavLink>
       </LoggedIn>
     </NavbarGroup>
     <LoggedIn>
