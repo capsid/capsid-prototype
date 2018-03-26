@@ -11,10 +11,16 @@ import {
 
 import { namespaceField } from "@capsid/utils";
 
-const parseAggs = ({ field, type, aggs }) => {
+const parseAggs = ({
+  field,
+  type,
+  aggs,
+  globalField = `${field}:global`,
+  filteredField = `${field}:filtered`
+}) => {
   if (!aggs) return {};
-  const aggRoot = aggs[`${field}:global`]
-    ? aggs[`${field}:global`][`${field}:filtered`]
+  const aggRoot = aggs[globalField]
+    ? aggs[globalField][filteredField] || aggs[globalField]
     : aggs;
   return type === "stats"
     ? { stats: aggRoot[`${field}:stats`] }
