@@ -99,28 +99,30 @@ const defaultSort = {
 
 const aggConfig = {
   samples: [
-    { displayName: "Disease", field: "cancer", type: "terms" },
-    { displayName: "Source", field: "source", type: "terms" }
+    { displayName: "Sample: Disease", field: "cancer", type: "terms" },
+    { displayName: "Sample: Source", field: "source", type: "terms" }
   ],
-  genomes: [{ displayName: "Genome Length", field: "length", type: "stats" }],
+  alignments: [
+    { displayName: "Alignment: Aligner", field: "aligner", type: "terms" }
+  ],
   statistics: [
-    { displayName: "Genome Hits", field: "genomeHits", type: "stats" },
-    { displayName: "Gene Hits", field: "geneHits", type: "stats" },
+    { displayName: "Genome: Hits", field: "genomeHits", type: "stats" },
     {
-      displayName: "% Genome Coverage",
+      displayName: "Genome: Coverage (%)",
       field: "genomeCoverage",
       type: "stats",
       isPercentage: true
     },
+    { displayName: "Gene: Hits", field: "geneHits", type: "stats" },
     {
-      displayName: "% Max Gene Coverage",
-      field: "geneCoverageMax",
+      displayName: "Gene: Coverage Avg (%)",
+      field: "geneCoverageAvg",
       type: "stats",
       isPercentage: true
     },
     {
-      displayName: "% Avg Gene Coverage",
-      field: "geneCoverageAvg",
+      displayName: "Gene: Coverage Max (%)",
+      field: "geneCoverageMax",
       type: "stats",
       isPercentage: true
     }
