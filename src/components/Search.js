@@ -106,23 +106,23 @@ const aggConfig = {
     { displayName: "Alignment: Aligner", field: "aligner", type: "terms" }
   ],
   statistics: [
-    { displayName: "Genome: Hits", field: "genomeHits", type: "stats" },
+    { displayName: "Genome: Hits", field: "pathgenomeHits", type: "stats" },
     {
       displayName: "Genome: Coverage (%)",
-      field: "genomeCoverage",
+      field: "pathgenomeCoverage",
       type: "stats",
       isPercentage: true
     },
     { displayName: "Gene: Hits", field: "geneHits", type: "stats" },
     {
       displayName: "Gene: Coverage Avg (%)",
-      field: "geneCoverageAvg",
+      field: "pathgeneCoverageAvg",
       type: "stats",
       isPercentage: true
     },
     {
       displayName: "Gene: Coverage Max (%)",
-      field: "geneCoverageMax",
+      field: "pathgeneCoverageMax",
       type: "stats",
       isPercentage: true
     }
