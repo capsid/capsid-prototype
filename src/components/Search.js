@@ -54,26 +54,28 @@ const nextTabLocation = ({ tab, sqon }) => ({
 const fetchAggData = async ({ client, sqon, config, setAggData }) => {
   let aggData = {};
   await new Promise(resolve => setTimeout(resolve, 1500));
-  Object.keys(config).map(entity =>
-    config[entity]
-      .filter(({ type }) => type === "terms")
-      .map(({ field, type }) =>
-        client
-          .query({
-            query: SearchAggCountQuery,
-            variables: {
-              query: JSON.stringify(sqon),
-              aggs: JSON.stringify(config),
-              agg: JSON.stringify({ entity, field, type })
-            }
-          })
-          .then(({ data: { items } }) => {
-            aggData[namespaceField({ entity, field })] = items;
-            setAggData(aggData);
-          })
-          .catch(err => console.error(err))
-      )
-  );
+  Object.keys(config)
+    .filter(entity => entity !== "statistics") // statistics counts don't correspond to an actual entity
+    .map(entity =>
+      config[entity]
+        .filter(({ type }) => type === "terms")
+        .map(({ field, type }) =>
+          client
+            .query({
+              query: SearchAggCountQuery,
+              variables: {
+                query: JSON.stringify(sqon),
+                aggs: JSON.stringify(config),
+                agg: JSON.stringify({ entity, field, type })
+              }
+            })
+            .then(({ data: { items } }) => {
+              aggData[namespaceField({ entity, field })] = items;
+              setAggData(aggData);
+            })
+            .catch(err => console.error(err))
+        )
+    );
 };
 
 const containers = {
@@ -106,6 +108,12 @@ const aggConfig = {
     { displayName: "Alignment: Aligner", field: "aligner", type: "terms" }
   ],
   statistics: [
+    {
+      displayName: "Statistics: Tags",
+      field: "tags",
+      type: "terms",
+      showExclude: true
+    },
     { displayName: "Genome: Hits", field: "pathgenomeHits", type: "stats" },
     {
       displayName: "Genome: Coverage (%)",

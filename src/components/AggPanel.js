@@ -40,6 +40,7 @@ const AggPanel = ({ client, config, search, sqon, updateSQON, aggData }) => (
         field,
         type,
         isPercentage,
+        showExclude,
         namespacedField = namespaceField({ entity, field }),
         data = parseAggs({
           field,
@@ -59,7 +60,11 @@ const AggPanel = ({ client, config, search, sqon, updateSQON, aggData }) => (
                 ? data.buckets.map(({ key }) => ({ key }))
                 : data.buckets
             }
-            handleValueClick={({ generateNextSQON }) =>
+            isExclude={d =>
+              !!currentFieldValue({ sqon, dotField: d.field, op: "not-in" })
+            }
+            showExcludeOption={showExclude}
+            handleIncludeExcludeChange={({ generateNextSQON }) =>
               updateSQON(generateNextSQON(sqon))
             }
             isActive={d =>
@@ -68,6 +73,9 @@ const AggPanel = ({ client, config, search, sqon, updateSQON, aggData }) => (
                 dotField: d.field,
                 currentSQON: sqon
               })
+            }
+            handleValueClick={({ generateNextSQON }) =>
+              updateSQON(generateNextSQON(sqon))
             }
           />
         ) : (
