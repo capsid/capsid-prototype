@@ -41,11 +41,13 @@ const statisticsColumns = ({
 }) => [
   {
     Header: `${headerPrefix || ""} Statistics`.trim(),
-    columns: columns.map(({ Header, accessor, isPercentage }) => ({
+    columns: columns.map(({ Header, accessor, isPercentage, ...x }) => ({
+      ...x,
       Header: `${Header} ${isPercentage ? "%" : ""}`,
       accessor: "statistics",
       sortable: false,
       className: "center",
+      maxWidth: 117,
       Cell: ({ value, statistics = selectStatistics(value) }) => (
         <Statistics
           content={statistics.value}

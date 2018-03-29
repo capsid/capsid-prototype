@@ -25,21 +25,24 @@ const GenomesTab = ({
           {
             Header: "Name",
             accessor: "name",
+            minWidth: 180,
             Cell: args => CellLink({ args, to: "genome", accessor: "id" })
           },
           {
             Header: "Taxonomy",
             id: "taxonomy",
+            minWidth: 150,
             accessor: x => (x.taxonomy || []).join(" / ")
           },
-          { Header: "Accession", accessor: "accession" },
-          { Header: "Taxon Id", accessor: "taxonId" },
+          { Header: "Accession", accessor: "accession", maxWidth: 90 },
+          { Header: "Taxon Id", accessor: "taxonId", maxWidth: 90 },
           {
             Header: "# Projects",
             id: "projectCount",
             accessor: x => x.counts["projects"],
             sortable: false,
             className: "center",
+            maxWidth: 100,
             Cell: args => CountLink({ args, to: "projects" })
           },
           {
@@ -48,6 +51,7 @@ const GenomesTab = ({
             accessor: x => x.counts["samples"],
             sortable: false,
             className: "center",
+            maxWidth: 100,
             Cell: args => CountLink({ args, to: "samples" })
           },
           {
@@ -56,6 +60,7 @@ const GenomesTab = ({
             accessor: x => x.counts["alignments"],
             sortable: false,
             className: "center",
+            maxWidth: 100,
             Cell: args => CountLink({ args, to: "alignments" })
           }
         ]
