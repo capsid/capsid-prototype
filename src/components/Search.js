@@ -8,7 +8,7 @@ import { Flex, Box } from "grid-styled";
 import { Link } from "react-router-dom";
 import _, { debounce } from "lodash";
 import urlJoin from "url-join";
-import capitalize from "capitalize";
+import humanize from "humanize-string";
 import { Tabs2, Tab2 } from "@blueprintjs/core";
 
 import Button from "@capsid/components/Button";
@@ -231,7 +231,7 @@ const Search = ({
                 <Tab2
                   id={x}
                   key={x}
-                  title={`${capitalize(x)} (${(search[x] || {}).total || ""})`}
+                  title={`${humanize(x)} (${(search[x] || {}).total || ""})`}
                 />
               ))}
             </Tabs2>

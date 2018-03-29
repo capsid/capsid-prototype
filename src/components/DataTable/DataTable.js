@@ -4,6 +4,8 @@ import { Box } from "grid-styled";
 
 import TextFilter from "@arranger/components/dist/TextFilter";
 
+import "./DataTable.css";
+
 const toReactTableSort = sort =>
   sort.map(x => x.split("__")).map(([x, y]) => ({ id: x, [y]: true }));
 
@@ -19,7 +21,7 @@ const DataTable = ({
   sort,
   updateSort
 }) => (
-  <div>
+  <div className="data-table">
     <Box mb={1}>
       <TextFilter
         value={filter}

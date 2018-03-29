@@ -1,7 +1,6 @@
 import React from "react";
 
-import DataTable from "@capsid/components/DataTable";
-import Statistics from "@capsid/components/Statistics";
+import DataTable, { statisticsColumns } from "@capsid/components/DataTable";
 
 const AlignmentsTab = ({
   filter,
@@ -17,42 +16,39 @@ const AlignmentsTab = ({
     data={hits}
     columns={[
       {
-        Header: "ID / Name",
-        id: "name",
-        accessor: x => x.name || x.id,
-        Cell: args => CellLink({ args, to: "alignment", accessor: "id" })
+        Header: "Alignment",
+        columns: [
+          {
+            Header: "ID / Name",
+            id: "name",
+            accessor: x => x.name || x.id,
+            Cell: args => CellLink({ args, to: "alignment", accessor: "id" })
+          },
+          {
+            Header: "Project",
+            accessor: "projectLabel",
+            Cell: args =>
+              CellLink({ args, to: "project", accessor: "projectId" })
+          },
+          {
+            Header: "Sample",
+            accessor: "sample",
+            Cell: args => CellLink({ args, to: "sample", accessor: "sampleId" })
+          },
+          { Header: "Aligner", accessor: "aligner" },
+          { Header: "Platform", accessor: "platform" },
+          { Header: "Type", accessor: "type" },
+          {
+            Header: "# Genomes",
+            id: "genomeCount",
+            accessor: x => x.counts["genomes"],
+            sortable: false,
+            className: "center",
+            Cell: args => CountLink({ args, to: "genomes" })
+          }
+        ]
       },
-      {
-        Header: "Project",
-        accessor: "projectLabel",
-        Cell: args => CellLink({ args, to: "project", accessor: "projectId" })
-      },
-      {
-        Header: "Sample",
-        accessor: "sample",
-        Cell: args => CellLink({ args, to: "sample", accessor: "sampleId" })
-      },
-      { Header: "Aligner", accessor: "aligner" },
-      { Header: "Platform", accessor: "platform" },
-      { Header: "Type", accessor: "type" },
-      {
-        Header: "# Genomes",
-        id: "genomeCount",
-        accessor: x => x.counts["genomes"],
-        sortable: false,
-        Cell: args => CountLink({ args, to: "genomes" })
-      },
-      ...(hasStatistics
-        ? [
-            {
-              Header: "Statistics",
-              id: "statistics",
-              sortable: false,
-              accessor: "statistics",
-              Cell: ({ value }) => <Statistics content={value} />
-            }
-          ]
-        : [])
+      ...(hasStatistics ? [...statisticsColumns({})] : [])
     ]}
     filterColumns={[
       "name",

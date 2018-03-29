@@ -1,7 +1,10 @@
 import React from "react";
+import humanize from "humanize-string";
 
-import DataTable from "@capsid/components/DataTable";
-import Statistics from "@capsid/components/Statistics";
+import DataTable, {
+  statisticsColumns,
+  selectStatistics
+} from "@capsid/components/DataTable";
 
 const GenomesTab = ({
   filter,
@@ -17,47 +20,53 @@ const GenomesTab = ({
     data={hits}
     columns={[
       {
-        Header: "Name",
-        accessor: "name",
-        Cell: args => CellLink({ args, to: "genome", accessor: "id" })
-      },
-      {
-        Header: "Taxonomy",
-        id: "taxonomy",
-        accessor: x => (x.taxonomy || []).join(" / ")
-      },
-      { Header: "Accession", accessor: "accession" },
-      { Header: "Taxon Id", accessor: "taxonId" },
-      {
-        Header: "# Projects",
-        id: "projectCount",
-        accessor: x => x.counts["projects"],
-        sortable: false,
-        Cell: args => CountLink({ args, to: "projects" })
-      },
-      {
-        Header: "# Samples",
-        id: "sampleCount",
-        accessor: x => x.counts["samples"],
-        sortable: false,
-        Cell: args => CountLink({ args, to: "samples" })
-      },
-      {
-        Header: "# Alignments",
-        id: "alignmentCount",
-        accessor: x => x.counts["alignments"],
-        sortable: false,
-        Cell: args => CountLink({ args, to: "alignments" })
+        Header: "Genome",
+        columns: [
+          {
+            Header: "Name",
+            accessor: "name",
+            Cell: args => CellLink({ args, to: "genome", accessor: "id" })
+          },
+          {
+            Header: "Taxonomy",
+            id: "taxonomy",
+            accessor: x => (x.taxonomy || []).join(" / ")
+          },
+          { Header: "Accession", accessor: "accession" },
+          { Header: "Taxon Id", accessor: "taxonId" },
+          {
+            Header: "# Projects",
+            id: "projectCount",
+            accessor: x => x.counts["projects"],
+            sortable: false,
+            className: "center",
+            Cell: args => CountLink({ args, to: "projects" })
+          },
+          {
+            Header: "# Samples",
+            id: "sampleCount",
+            accessor: x => x.counts["samples"],
+            sortable: false,
+            className: "center",
+            Cell: args => CountLink({ args, to: "samples" })
+          },
+          {
+            Header: "# Alignments",
+            id: "alignmentCount",
+            accessor: x => x.counts["alignments"],
+            sortable: false,
+            className: "center",
+            Cell: args => CountLink({ args, to: "alignments" })
+          }
+        ]
       },
       ...(hasStatistics
         ? [
-            {
-              Header: "Statistics",
-              id: "statistics",
-              sortable: false,
-              accessor: "statistics",
-              Cell: ({ value }) => <Statistics content={value} />
-            }
+            ...statisticsColumns({
+              headerPrefix: humanize(
+                (selectStatistics(hits[0].statistics).name || "").slice(0, -1)
+              )
+            })
           ]
         : [])
     ]}
