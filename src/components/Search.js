@@ -51,9 +51,8 @@ const nextTabLocation = ({ tab, sqon }) => ({
   })
 });
 
-const fetchAggData = async ({ client, sqon, config, setAggData }) => {
+const fetchAggData = ({ client, sqon, config, setAggData }) => {
   let aggData = {};
-  await new Promise(resolve => setTimeout(resolve, 1500));
   Object.keys(config)
     .filter(entity => entity !== "statistics") // statistics counts don't correspond to an actual entity
     .map(entity =>
@@ -187,17 +186,19 @@ const enhance = compose(
     (props, nextProps) => !_.isEqual(props.sqon, nextProps.sqon),
     ({ dispatch, sqon, client, setAggData }) => {
       dispatch(saveLastSqon(sqon));
-      fetchAggData({ client, sqon, config: aggConfig, setAggData });
+      setAggData({});
     }
   )
 );
 
 const Search = ({
+  client,
   history,
   match: { params: { tab } },
   params: { filter = "", ...params },
   sqon,
   aggData,
+  setAggData,
   Tab = tabs[tab],
   Container = containers[tab],
   sort = params.sort ? _.flatten([params.sort]) : defaultSort[tab]
@@ -212,6 +213,18 @@ const Search = ({
     {({ data: { search, loading, refetch }, loadMore }) => (
       <Flex>
         <Box width={[1 / 2, 1 / 4, 1 / 6, 1 / 8]}>
+          <Flex justifyContent="center">
+            <Box mb={1}>
+              <Button
+                iconName="add-to-artifact"
+                onClick={() =>
+                  fetchAggData({ client, sqon, config: aggConfig, setAggData })
+                }
+              >
+                Refresh Counts
+              </Button>
+            </Box>
+          </Flex>
           <AggPanel
             aggData={aggData}
             search={search}
