@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import _, { debounce } from "lodash";
 import urlJoin from "url-join";
 import humanize from "humanize-string";
-import { Tabs2, Tab2 } from "@blueprintjs/core";
+import { Spinner, Tabs2, Tab2 } from "@blueprintjs/core";
 
 import Button from "@capsid/components/Button";
 import { CurrentSQON } from "@arranger/components/dist/Arranger/CurrentSQON";
@@ -222,19 +222,22 @@ const Search = ({
         </Box>
         <Box width={[1 / 2, 3 / 4, 5 / 6, 7 / 8]} ml={2}>
           <Box mb={1}>
-            <Tabs2
-              id="tabs"
-              selectedTabId={tab}
-              onChange={tab => history.push(nextTabLocation({ tab, sqon }))}
-            >
-              {["projects", "samples", "alignments", "genomes"].map(x => (
-                <Tab2
-                  id={x}
-                  key={x}
-                  title={`${humanize(x)} (${(search[x] || {}).total || ""})`}
-                />
-              ))}
-            </Tabs2>
+            <Flex>
+              <Tabs2
+                id="tabs"
+                selectedTabId={tab}
+                onChange={tab => history.push(nextTabLocation({ tab, sqon }))}
+              >
+                {["projects", "samples", "alignments", "genomes"].map(x => (
+                  <Tab2
+                    id={x}
+                    key={x}
+                    title={`${humanize(x)} (${(search[x] || {}).total || ""})`}
+                  />
+                ))}
+              </Tabs2>
+              <Box ml={3}>{loading && <Spinner className={`pt-small`} />}</Box>
+            </Flex>
           </Box>
           <Box mb={1}>
             <CurrentSQON
